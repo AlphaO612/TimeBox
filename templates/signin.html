@@ -1,0 +1,156 @@
+<head>
+	<style type="text/css">
+		@import url('https://fonts.googleapis.com/css?family=Ropa%20Sans');
+		@import url('https://fonts.googleapis.com/css?family=PT%20Sans');
+		/* Фон */
+		body {
+			background: linear-gradient(118.71deg, #284ED5 24.35%, #783BC6 85.06%), #C4C4C4;
+		}
+
+		A {
+	    	text-decoration: none; /* Убирает подчеркивание для ссылок */
+	    	color: #D3F5FF;
+	    } 
+	    A:hover { 
+		    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.40) 50%, rgba(255, 255, 255, 0) 100%);
+	    } 
+	    input[type=text] {
+	    	margin: 1%;
+	    	position: relative;
+			text-align: center;
+	    
+		    font-size: 135%;
+		    color: #3D3D3D;
+		    background: radial-gradient(100% 3914.7% at 100% 50%, #B5E3E1 0%, #97C4C2 50.95%, #B5E3E1 100%);
+			border: 1px solid #83A2A0;
+			border-radius: 15px;
+			height: 20%;
+			width: 100%;
+		}
+		input[type=submit] {
+	    	margin: 1%;	
+		    font-size: 135%;
+		    color: #E9E2E2;
+		    background: #66A09D;
+			border: 1px solid #83A2A0;
+			border-radius: 25px;
+			text-align: center;
+			height: 20%;
+			width: 100%;
+		}
+		/* lineLight */
+		.line{
+			margin: auto;
+			position: relative;
+			top: 2%;
+			width: 100%;
+		    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0) 100%);
+		    height: 6%;
+		}
+
+		/* ДатаВремя */
+		.timeBox{
+			margin: auto;
+			position: relative;
+			width: 54%;
+			height: 20%;
+			top: 4.2%;
+			/*left: 23%;
+			right: 23%;*/
+		}
+
+		/* 21.09.2020 */
+		.datetext{
+			margin: auto;
+			position: relative;
+			top: 2%;
+			width: 39%;
+			height: 43%;
+			/*left: 31%;
+			right: 31%;*/
+
+			font-family: Ropa Sans;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 400%;
+			text-align: center;
+			letter-spacing: 0.095em;
+
+			color: rgba(255, 255, 255, 0.55);
+		}
+
+		/* понедельник */
+		.nametext{
+			margin: auto;
+			position: relative;
+			top: 2%;
+			width: 29%;
+			height: 20%;
+			/*left: 35%;
+			right: 35%;*/
+
+			font-family: PT Sans;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 180%;
+			text-align: center;
+			letter-spacing: 0.13em;
+
+			color: rgba(255, 255, 255, 0.55);
+		}
+
+		/* Расписание */
+		.timetableBox{
+			position: relative;
+			width: 28.5%;
+			height: 35%;
+			/*left: 36%;
+			right: 36%;*/
+			top: 8%;
+
+			margin: auto;
+			text-align: center;
+
+		}
+
+		/* ТекстУрока */
+		.lesson{
+			margin: auto;
+
+			font-family: PT Sans;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 280%;
+			/* identical to box height */
+			
+			letter-spacing: 0.1em;
+
+			color: #D3F5FF;
+		}
+	</style>
+	<title>TimeBox</title>
+</head>
+<body>
+	<div class="timeBox">
+		<p class="datetext">{{data['name']}}</p>
+		<div class="line"></div>
+		<p class="nametext"></p>
+	</div>
+	<div class="timetableBox">
+		<form enctype="multipart/form-data" method="POST" action="{{data['way']}}">
+			<input name="login" placeholder="Логин" type='text'/>
+			<input name="password" placeholder="Пароль" type='text'/>
+			<input type="submit" value="Вход"/>
+		</form>
+		<script type="text/javascript" src="https://vk.com/js/api/openapi.js?168"></script>
+		<script type="text/javascript">
+		  VK.init({apiId: 7759688});
+		</script>
+
+		<!-- VK Widget -->
+		<div id="vk_auth"></div>
+		<script type="text/javascript">
+		  VK.Widgets.Auth("vk_auth", {"authUrl":'{{data['way']}}'});
+		</script>
+	</div>	
+</body>
