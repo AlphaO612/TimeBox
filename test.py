@@ -6,7 +6,7 @@ from uuid import uuid4
 from time import sleep
 import datetime, json, os, codecs
 
-pwd = ''#'/root/TimeBox/'
+pwd = '/root/TimeBox/'
 sysTokens = {}
 lib = {
     "mon":"понедельник",
