@@ -6,7 +6,7 @@ from uuid import uuid4
 from time import sleep
 import datetime, json, os, codecs
 
-pwd = '/root/TimeBox/'
+pwd = '' #'/root/TimeBox/'
 sysTokens = {}
 lib = {
     "mon":"понедельник",
@@ -136,8 +136,8 @@ def hello():
                 'info': i['info']
             }
             if 'weekType' in i:
-                if i['weekType'] == 0 or (i['weekType'] == 1 and not bool(((deadline.day-1)//7+2)%2)) or\
-                        (i['weekType'] == 2 and bool(((deadline.day-1)//7+2)%2)):
+                if i['weekType'] == 0 or (i['weekType'] == 1 and bool(deadline.isocalendar()[1]%2)) or\
+                        (i['weekType'] == 2 and not bool(deadline.isocalendar()[1]%2)):
                     date['les'].append(d)
             else:
                 date['les'].append(d)
