@@ -3,6 +3,7 @@
 
 from flask import render_template, Flask, redirect, url_for, request, send_from_directory, flash, make_response 
 from uuid import uuid4
+from random import randint
 from time import sleep
 import datetime, json, os, codecs
 
@@ -126,8 +127,13 @@ def hello():
         }
 
         page = json.loads(readStorage(f'solo.json'))
+        ids = []
+        id = None
         for i in page['week'][deadline.strftime("%a").lower()]:
+            while (id in ids or id == None): id = randint(0,10000000000)
+
             d = {
+                'id': id,
                 'st': i['time'][0],
                 'en': i['time'][1],
                 'name': i['name'],
@@ -144,7 +150,9 @@ def hello():
 
         if deadline.strftime("%d.%m.%Y") in page['other']:
             for i in page['other'][deadline.strftime("%d.%m.%Y")]:
+                while (id in ids or id == None): id = randint(0, 10000000000)
                 date['les'].append({
+                    'id': id,
                     'st': i['time'][0],
                     'en': i['time'][1],
                     'name': i['name'],
