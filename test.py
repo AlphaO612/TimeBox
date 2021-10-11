@@ -7,7 +7,7 @@ from random import randint
 from time import sleep
 import datetime, json, os, codecs
 
-pwd = '' # '/root/TimeBox/'
+pwd = '/root/TimeBox/'
 sysTokens = {}
 lib = {
     "mon":"понедельник",
