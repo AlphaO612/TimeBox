@@ -167,7 +167,7 @@
 			left: 18px;
 			top: 20px;
 
-			font-family: RT Sans;
+			font-family: PT Sans;
 			font-style: normal;
 			font-weight: 800;
 			font-size: 20px;
@@ -215,7 +215,7 @@
 			height: 16px;
 			left: 13px;
 			top: 18px;
-			font-family: RT Sans;
+			font-family: PT Sans;
 			font-style: normal;
 			font-weight: normal;
 			font-size: 24px;
@@ -236,7 +236,7 @@
 			left: 13px;
 			top: 54px;
 
-			font-family: RT Sans;
+			font-family: PT Sans;
 			font-style: normal;
 			font-weight: normal;
 			font-size: 14px;
@@ -263,7 +263,7 @@
 			-ms-hyphens: auto;
 		}
 		#text{
-			font-family: RT Sans;
+			font-family: PT Sans;
 			font-style: normal;
 			font-weight: 800;
 			font-size: 15px;
@@ -290,8 +290,47 @@
 		.tut:hover {
 			color: rgba(211, 245, 255, 0.9);
 		}
+		
+		#type{
+			font-family: PT Sans;
+			font-style: normal;
+			font-size: 150%;
+			text-align: center;
+			margin: auto;
+			width: 50%;
+			position: absolute;
+			left: 50%;
+			margin-left: -25%;
+			top: 2%;
+    		color: rgba(211, 245, 255, 1);
+		}
+		@media only screen and (hover: none) and (pointer: coarse)and (orientation: landscape){
+
+			#mobile{
+				transform:scale(0.5);
+			}
+			
+			#type {
+				font-size: 100%;
+			}
+
+		}
+		@media only screen and (hover: none) and (pointer: coarse)and (orientation: portrait){
+
+			#mobile{
+				transform:scale(1.3);
+			}
+			
+			.timeBox{
+				top: 7%
+			}
+
+
+		}
+		
 	</style>
 	<title>TimeBox</title>
+	<meta name="viewport" content="width=850, user-scalable=yes">
 	<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
 
     <link
@@ -345,7 +384,9 @@
 		</a>
 	</div>
 	
-	<div class="timeBox">
+	<p id="type" id="mobile">{{data['textTime']}}</p>
+	
+	<div class="timeBox" id="mobile">
 		<p class="datetext"><a href="{{data['-']}}" class="tut">< </a>{{data['day']}}<a href="{{data['+']}}" class="tut"> ></a></p>
 		<div class="line"></div>
 		<p class="nametext">{{data['name']}}</p>

@@ -7,7 +7,7 @@ from random import randint
 from time import sleep
 import datetime, json, os, codecs
 
-pwd = '/root/TimeBox/'
+pwd = '' # '/root/TimeBox/'
 sysTokens = {}
 lib = {
     "mon":"понедельник",
@@ -52,35 +52,33 @@ def index():
             "name":lib[deadline.strftime("%a").lower()],
             "l_box": url_for('hello', time=timecode),
             #"l_list": 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', # url_for('list', time=timecode)
-            "l_sindin": url_for('sighin'), # url_for('sindin', time=timecode)
+            "l_sindin": url_for('signin'), # url_for('sindin', time=timecode)
             "l_about": 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', # url_for('sindin', time=timecode)
 
         }
     return render_template('index.html', data=date)
 
-@app.route('/sighin', methods=['GET', 'POST'])
-def sighin():
-    if request.cookies.get('log') == readStorage('set'): return redirect(url_for('admin'))
-    else:
-        date = {
-            "name":'Вход',
-            "way":url_for('check'),
-        }
-        #res = make_response("Setting a cookie")
-        #res.set_cookie('token', '', max_age=30)
+@app.route('/signin', methods=['GET', 'POST'])
+def signin():
+    date = {
+        "name":'Вход',
+        "way":url_for('check'),
+    }
+    #res = make_response("Setting a cookie")
+    #res.set_cookie('token', '', max_age=30)
 
-        return render_template('signin.html', data=date)
+    return render_template('signin.html', data=date)
 
 @app.route('/check', methods=['GET', 'POST'])
 def check():
     print([request.form['login'],request.form['password']])
-    if [request.form['login'],request.form['password']] == ['alphaste', 'AzureNotHere']:
+    if [request.form['log'],request.form['word']] == ['alphaste', 'yeah']:
         res = make_response(redirect(url_for('admin')))
         writeStorage('set',str(uuid4()))
         res.set_cookie('log', readStorage('set'), max_age=60 * 60 * 24)
         return res
     else:
-        return redirect(url_for('sighin'))
+        return redirect(url_for('signin'))
 
 @app.route('/dashboard', methods=['GET','POST'])
 def dashboard():
@@ -123,17 +121,22 @@ def hello():
             "-": url_for('hello', time=int((deadline + datetime.timedelta(days = -1)).timestamp())),
             "+": url_for('hello', time=int((deadline + datetime.timedelta(days = 1)).timestamp())),
             "way": "?time=" + str(int((deadline + datetime.timedelta(days = 1)).timestamp())),
-            'les':[]
+            'les':[],
+            'textTime': (f"Сегодня" if deadline.date()==datetime.datetime.today().date() else (f"В будущем\
+ на {abs((deadline.date()-datetime.datetime.today().date()).days)} дней" if deadline>datetime.datetime\
+                                                                                           .today() else f"В прошлом\
+ на {abs((deadline.date()-datetime.datetime.today().date()).days)} дней"))
         }
 
         page = json.loads(readStorage(f'solo.json'))
         ids = []
-        id = None
         for i in page['week'][deadline.strftime("%a").lower()]:
-            while (id in ids or id == None): id = randint(0,10000000000)
+            idL = None
+            while (idL in ids or idL == None): idL = randint(0,10000)
+            ids.append(idL)
 
             d = {
-                'id': id,
+                'id': idL,
                 'st': i['time'][0],
                 'en': i['time'][1],
                 'name': i['name'],
@@ -150,9 +153,11 @@ def hello():
 
         if deadline.strftime("%d.%m.%Y") in page['other']:
             for i in page['other'][deadline.strftime("%d.%m.%Y")]:
-                while (id in ids or id == None): id = randint(0, 10000000000)
+                idL = None
+                while (idL in ids or idL == None): idL = randint(0,10000)
+                ids.append(idL)
                 date['les'].append({
-                    'id': id,
+                    'id': idL,
                     'st': i['time'][0],
                     'en': i['time'][1],
                     'name': i['name'],
