@@ -5,9 +5,9 @@ from flask import render_template, Flask, redirect, url_for, request, send_from_
 from uuid import uuid4
 from random import randint
 from time import sleep
-import datetime, json, os, codecs
+import datetime, json, os, codecs, requests
 
-pwd = '/root/TimeBox/'
+pwd = '/root/TimeBox/' if os.name == 'posix' else ''
 sysTokens = {}
 lib = {
     "mon":"понедельник",
@@ -46,47 +46,176 @@ def index():
     deadline = datetime.datetime.combine(today, moment)
     print(deadline)
     timecode = int(deadline.timestamp())
-    
+
     date={
             "day": str(deadline.strftime("%d.%m.%Y")),
-            "name":lib[deadline.strftime("%a").lower()],
+            "name":lib[deadline.strftime("%a").lower()]+\
+                   f"({'не чётная' if bool(deadline.isocalendar()[1]%2) else 'чётная'})",
             "l_box": url_for('hello', time=timecode),
             #"l_list": 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', # url_for('list', time=timecode)
             "l_sindin": url_for('signin'), # url_for('sindin', time=timecode)
             "l_about": 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', # url_for('sindin', time=timecode)
-
-        }
+    }
     return render_template('index.html', data=date)
 
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
+    try:
+        auth = json.loads(readStorage('auth.json'))
+    except:
+        auth = {
+            "vkHash": {},
+            "accounts": {}
+        }
+        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        return '<h1>Error UNDEFINED</h1><hr>\
+    <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
+
+    if request.cookies.get('log') in auth['accounts']:
+        return redirect(url_for('check'))
+
     date = {
         "name":'Вход',
         "way":url_for('check'),
+        "error":""
     }
     #res = make_response("Setting a cookie")
     #res.set_cookie('token', '', max_age=30)
+
+    if request.args.get('error', ''):
+        if request.args.get('error', '') == 'LoginWrong': date['error'] = 'Неверный пароль или логин'
 
     return render_template('signin.html', data=date)
 
 @app.route('/check', methods=['GET', 'POST'])
 def check():
-    print([request.form['login'],request.form['password']])
-    if [request.form['log'],request.form['word']] == ['alphaste', 'yeah']:
-        res = make_response(redirect(url_for('admin')))
-        writeStorage('set',str(uuid4()))
-        res.set_cookie('log', readStorage('set'), max_age=60 * 60 * 24)
+    try:
+        auth = json.loads(readStorage('auth.json'))
+    except:
+        auth = {
+            "vkHash": {},
+            "accounts": {}
+        }
+        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        return '<h1>Error UNDEFINED</h1><hr>\
+    <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
+
+    if request.args.get('hash', '') and request.args.get('hash', '') in auth['vkHash']:
+        res = make_response(redirect(url_for('dashboard')))
+        res.set_cookie('log', auth['vkHash'][request.args.get('hash', '')], max_age=60 * 60 * 24 * 7)
         return res
+
+
+    elif request.args.get('loseLog', '') == '1':
+        res = make_response(redirect(url_for('signin')))
+        res.set_cookie('log', '', max_age=0)
+        return res
+
+    elif request.cookies.get('log') and request.cookies.get('log') not in auth['accounts']:
+        res = make_response(redirect(url_for('signin')))
+        res.set_cookie('log', '', max_age=0)
+        return res
+
+    elif request.cookies.get('log') in auth['accounts']:
+        return redirect(url_for('dashboard'))
+
+    elif request.method == 'POST':
+        login, password = request.form['login'], request.form['password']
+        for i in list(auth['accounts']):
+            if login == auth['accounts'][i]['login'] and password == auth['accounts'][i]['password']:
+                res = make_response(redirect(url_for('dashboard')))
+                res.set_cookie('log', i, max_age=60 * 60 * 24 * 7)
+                return res
+        return redirect(url_for('signin',error='LoginWrong'))
+
     else:
-        return redirect(url_for('signin'))
+        response = requests.get(request.args.get('photo',''))
+        if response.status_code == 200:
+            with open(pwd+"photos/time.png", 'wb') as f:
+                f.write(response.content)
+        return redirect(url_for('signup', hash=request.args.get('hash', ''), uid=request.args.get('uid', ''),
+                                name=request.args.get('first_name', ''),
+                                surname=request.args.get('last_name', ''),
+                                photo=str(request.args.get('photo', ''))))
+
+@app.route('/signup', methods=['GET','POST'])
+def signup():
+    try:
+        auth = json.loads(readStorage('auth.json'))
+    except:
+        auth = {
+            "vkHash": {},
+            "accounts": {}
+        }
+        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        return '<h1>Error UNDEFINED</h1><hr>\
+    <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
+
+    if request.method == 'POST':
+        idl = str(uuid4())
+        while (idl in auth['accounts']): idl = str(uuid4())
+        auth['vkHash'][request.args.get('hash', '')] = idl
+        auth['accounts'][idl] = {
+            "img": request.args.get('photo', '').replace('amp;','&'),
+            "name": request.args.get('name', ''),
+            "surname": request.args.get('surname', ''),
+            "hash": request.args.get('hash', ''),
+            "uid": request.args.get('uid', ''),
+            "login":request.form['login'],
+            "password":request.form['password']
+        }
+
+        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        return redirect(url_for('dashboard'))
+    elif request.cookies.get('log') in auth['accounts']:
+        return redirect(url_for('check'))
+
+    else:
+        data = {
+            "img": request.args.get('photo',''),
+            "name": request.args.get('name',''),
+            "surname": request.args.get('surname',''),
+            "hash": request.args.get('hash',''),
+            "uid": request.args.get('uid','')
+        }
+        return render_template('signup.html', data=data)
+
 
 @app.route('/dashboard', methods=['GET','POST'])
 def dashboard():
-    return redirect(url_for('file'))
+    try:
+        auth = json.loads(readStorage('auth.json'))
+    except:
+        auth = {
+            "vkHash": {},
+            "accounts": {}
+        }
+        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        return '<h1>Error UNDEFINED</h1><hr>\
+    <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
+
+    if request.cookies.get('log') in auth['accounts']:
+        data = auth['accounts'][request.cookies.get('log')]
+        return render_template('room.html',data=data)
+    else:
+        res = make_response(redirect(url_for('signin')))
+        res.set_cookie('log', '', max_age=0)
+        return res
 
 @app.route('/dashboard/file', methods=['GET','POST'])
 def file():
-    if request.cookies.get('log') == readStorage('set'):
+    try:
+        auth = json.loads(readStorage('auth.json'))
+    except:
+        auth = {
+            "vkHash": {},
+            "accounts": {}
+        }
+        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        return '<h1>Error UNDEFINED</h1><hr>\
+    <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
+
+    if request.cookies.get('log') in auth['accounts'] and False:
             if request.method == 'POST':
                 if 'file' not in request.files:
                     flash('No file part')
@@ -107,8 +236,10 @@ def file():
                             return f'<p><h1>fine! you loaded it!</h1></p<p><a href="{url_for("index")}">Back</a></p>'
                     return redirect(url_for('index'))
             else:
-                return f'<h3>Upload file(s) at server</h3><form enctype="multipart/form-data" method="POST"><p><input type="file" name="file" required title="Upload..."></p><p><a href="{url_for("index")}">Back</a> <input type="submit" value="Load"></p> </form>'
-    else: redirect(url_for('index'))
+                return f'<h3>Upload file(s) at server</h3><form enctype="multipart/form-data" method="POST">\
+<p><input type="file" name="file" required title="Upload..."></p><p><a href="{url_for("index")}">Back</a>\
+ <input type="submit" value="Load"></p> </form>'
+    else: return redirect(url_for('index'))
 
 
 @app.route('/box', methods=['GET'])
@@ -117,13 +248,14 @@ def hello():
         deadline = datetime.datetime.fromtimestamp(int(request.args.get('time', '')))
         date={
             "day": str(deadline.strftime("%d.%m.%Y")),
-            "name":lib[deadline.strftime("%a").lower()],
+            "name":lib[deadline.strftime("%a").lower()] +\
+                   f"({'не чётная' if bool(deadline.isocalendar()[1]%2) else 'чётная'})",
             "-": url_for('hello', time=int((deadline + datetime.timedelta(days = -1)).timestamp())),
             "+": url_for('hello', time=int((deadline + datetime.timedelta(days = 1)).timestamp())),
             "way": "?time=" + str(int((deadline + datetime.timedelta(days = 1)).timestamp())),
             'les':[],
             'textTime': (f"Сегодня" if deadline.date()==datetime.datetime.today().date() else (f"В будущем\
- на {abs((deadline.date()-datetime.datetime.today().date()).days)} дней" if deadline>datetime.datetime\
+ на {abs((deadline.date()-datetime.datetime.today().date()).days)} дней" if deadline > datetime.datetime\
                                                                                            .today() else f"В прошлом\
  на {abs((deadline.date()-datetime.datetime.today().date()).days)} дней"))
         }

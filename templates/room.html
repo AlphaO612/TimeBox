@@ -1,42 +1,50 @@
-<head>
+<head lang="ru">
 	<style type="text/css">
 		@import url('https://fonts.googleapis.com/css?family=Ropa%20Sans');
 		@import url('https://fonts.googleapis.com/css?family=PT%20Sans');
 		/* Фон */
 		body {
-			background: linear-gradient(0deg, rgba(255, 250, 250, 0.6), rgba(255, 250, 250, 0.6)), linear-gradient(118.71deg, #284ED5 24.35%, #9463D1 85.06%);
+			/*background: linear-gradient(118.71deg, #28ABD5 24.35%, #AEE8E8 85.06%), #C4C4C4;*/
+			background: linear-gradient(118.71deg, #284ED5 24.35%, #8039DA 85.06%);
 		}
 
 		A {
-	    	text-decoration: none; /* Убирает подчеркивание для ссылок */
-	    	color: #D3F5FF;
+	    	text-decoration: none;
 	    } 
-	    A:hover { 
+	    /*.lesson:hover {
 		    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.40) 50%, rgba(255, 255, 255, 0) 100%);
-	    } 
-	    input[type=text] {
-	    	margin: 1%;
-	    	position: relative;
-			text-align: center;
-	    
-		    font-size: 135%;
-		    color: #3D3D3D;
-		    background: radial-gradient(100% 3914.7% at 100% 50%, #B5E3E1 0%, #97C4C2 50.95%, #B5E3E1 100%);
-			border: 1px solid #83A2A0;
-			border-radius: 15px;
-			height: 20%;
+	    } */
+
+		.overlay {
 			width: 100%;
+			height: 100%;
+			background: rgba(51, 51, 51, 0.78);
+			position: fixed;
+			top: 0;
+			left: 0;
+			display: none;
 		}
-		input[type=submit] {
-	    	margin: 1%;	
-		    font-size: 135%;
-		    color: #E9E2E2;
-		    background: #66A09D;
-			border: 1px solid #83A2A0;
-			border-radius: 25px;
+		.block-popup{
+			position: absolute;
+			background: #fff;
+			width: 37%;
+			height: 135px;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			border-radius: 5px;
+			border: 1px solid #ccc;
+			padding: 10px;
+			box-shadow: 0 12px 20px -10px;
 			text-align: center;
-			height: 20%;
-			width: 100%;
+			display: none;
+		}
+
+		.block-popup span{
+			position: absolute;
+			top: 5px;
+			right: 5px;
+			cursor: pointer;
 		}
 		/* lineLight */
 		.line{
@@ -57,6 +65,7 @@
 			top: 4.2%;
 			/*left: 23%;
 			right: 23%;*/
+			transition: .9s opacity ease-in-out;
 		}
 
 		/* 21.09.2020 */
@@ -64,8 +73,6 @@
 			margin: auto;
 			position: relative;
 			top: 2%;
-			width: 39%;
-			height: 43%;
 			/*left: 31%;
 			right: 31%;*/
 
@@ -84,8 +91,6 @@
 			margin: auto;
 			position: relative;
 			top: 2%;
-			width: 29%;
-			height: 20%;
 			/*left: 35%;
 			right: 35%;*/
 
@@ -102,55 +107,368 @@
 		/* Расписание */
 		.timetableBox{
 			position: relative;
-			width: 28.5%;
-			height: 35%;
-			/*left: 36%;
-			right: 36%;*/
+			height: 59.72%;
 			top: 8%;
-
+			display: flex;
 			margin: auto;
 			text-align: center;
+			flex-direction: column;
+			justify-content: flex-start;
+			overflow-y: auto;
+			transition: 1.2s opacity ease-in-out;
+		}
 
+		/* home */
+		.svg{
+			position: absolute;
+			left: 3%;
+			top: 1%;
+		}
+
+		.svg2{
+			position: absolute;
+			right: 0%;
+			top: 2%;
 		}
 
 		/* ТекстУрока */
 		.lesson{
+			margin: 3 auto;
+			position: relative;
+			width: 820px;
+			height: 82px;
+			left: 0px;
+			top: 6px;
+			display: flex;
+			/* margin-right: -0.25em; */
+			background: rgba(255, 255, 255, 0.96);
+			box-shadow: 0px 4px 9px rgb(0 0 0 / 25%);
+			border-radius: 11px;
+			flex-direction: row;
+			justify-content: flex-start;
+		}
+
+		/*.lesssssson{
 			margin: auto;
 
 			font-family: PT Sans;
 			font-style: normal;
 			font-weight: normal;
 			font-size: 280%;
-			/* identical to box height */
-			
+
 			letter-spacing: 0.1em;
 
 			color: #D3F5FF;
-		}
-		.round {
-		    width: 15em;
-		    height: 15em;
-		    display: flex;
-			align-items: center;
-			justify-content: center;
-			position: absolute;
-	        top: 50%;
-	        left: 50%;
-	        margin-right: -50%;
-	        transform: translate(-50%, -50%);
-	        font-family: PT Sans;
+		}*/
+		#time{
+			position: relative;
+			width: 47px;
+			height: 42px;
+			left: 18px;
+			top: 20px;
+
+			font-family: PT Sans;
 			font-style: normal;
-			font-weight: normal;
-			font-size: 280%;
-		    border-radius: 50%;  /* подробнее про line-height */
-		    text-align: center;  /* выравнять текст по середине по горизонтали */
-		    background: #FFFFFF;
-		    box-shadow: 0px 0px 43px 13px rgba(130, 69, 230, 0.25);
+			font-weight: 800;
+			font-size: 20px;
+			line-height: 68.2%;
+
+			display: flex;
+			align-items: center;
+			text-align: center;
+			letter-spacing: 0.1em;
+
+			color: #000000;
 		}
 
+		#rightLine{
+			position: relative;
+			width: 0px;
+			height: 74px;
+			left: 18px;
+
+			border: 1px solid rgba(0, 0, 0, 0.07);
+		}
+		#leftLine{
+			position: relative;
+			width: 0px;
+			height: 74px;
+			left: 0px;
+
+			border: 1px solid rgba(0, 0, 0, 0.07);
+		}
+		#cen{
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: flex-start;
+			/* padding: 13px; */
+			position: relative;
+			width: 738px;
+			height: 82px;
+			left: 32px;
+			/* top: 0px;*/
+		}
+		#TextOne{
+			position: static;
+			width: 623px;
+			height: 16px;
+			left: 13px;
+			top: 18px;
+			font-family: PT Sans;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 24px;
+			line-height: 68.2%;
+			display: flex;
+			align-items: center;
+			letter-spacing: -0.045em;
+			color: #000000;
+			flex: none;
+			order: 0;
+			flex-grow: 0;
+			margin: 10px 0px;
+		}
+		#TextTwo{
+			position: static;
+			width: 309px;
+			height: 10px;
+			left: 13px;
+			top: 54px;
+
+			font-family: PT Sans;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 14px;
+			line-height: 68.2%;
+			/* identical to box height, or 10px */
+
+			display: flex;
+			align-items: center;
+			letter-spacing: -0.045em;
+
+			color: rgba(0, 0, 0, 0.58);
+
+
+			/* Inside Auto Layout */
+
+			flex: none;
+			order: 1;
+			flex-grow: 0;
+			margin: 10px 0px;
+		}
+		#test{
+			-moz-hyphens: auto;
+			-webkit-hyphens: auto;
+			-ms-hyphens: auto;
+		}
+		#text{
+			font-family: PT Sans;
+			font-style: normal;
+			font-weight: 800;
+			font-size: 15px;
+
+			display: flex;
+			align-items: center;
+			text-align: center;
+
+			color: #000000;
+		}
+
+		.short{
+			position:relative;
+			left:10px;
+			width:50px;
+			height:60px;
+			word-break:break-word;
+		}
+
+		.tut{
+			color: rgba(211, 245, 255, 0.7);
+		}
+
+		.tut:hover {
+			color: rgba(211, 245, 255, 0.9);
+		}
+		
+		#type{
+			font-family: PT Sans;
+			font-style: normal;
+			font-size: 150%;
+			text-align: center;
+			margin: auto;
+			width: 50%;
+			position: absolute;
+			left: 50%;
+			margin-left: -25%;
+			top: 2%;
+    		color: rgba(211, 245, 255, 1);
+		}
+		.profile {
+			margin: 3 auto;
+			position: relative;
+			top:4.2%;
+			width: 450px;
+			height: 82px;
+			display: flex;
+			/* margin-right: -0.25em; */
+			background: rgba(255, 255, 255, 0.96);
+			box-shadow: 0px 4px 9px rgb(0 0 0 / 25%);
+			border-radius: 11px;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-content: center;
+			align-items: center;
+		}
+		.profile #picture{
+			margin-left: 30px;
+			border-radius: 50%;
+			box-shadow: 0px 0px 10px 3px rgba(130, 69, 230, 0.4);
+		}
+		.profile #name{
+			margin-left: 20px;
+			position: static;
+			width: 623px;
+			height: 16px;
+			left: 13px;
+			top: 18px;
+			font-family: PT Sans;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 24px;
+			line-height: 68.2%;
+			align-items: center;
+			letter-spacing: -0.045em;
+			color: #000000;
+		}
+		
+		.main{
+			height: 66%;
+			background: rgba(255, 255, 255, 0.96);
+			box-shadow: 0px 4px 9px rgb(0 0 0 / 25%);
+			border-radius: 11px;
+			display: flex;
+			margin: auto;
+			margin-top:4%;
+			margin-left: 10%;
+			margin-right:10%;
+			text-align: center;
+			flex-direction: column;
+			justify-content: center;
+			overflow-y: auto;
+			transition: 1.2s opacity ease-in-out;
+			
+    		flex-wrap: nowrap;
+		}
+		
+		.main #title{
+			font-family: PT Sans;
+			font-style: normal;
+			font-weight: bold;
+			font-size: 140%;
+		}
+		
+		.main #smile{
+			border-radius: 50%;
+			margin-top: 29px;
+			margin-left: auto;
+    		margin-right: auto;
+			
+			box-shadow: 0px 0px 29px 10px rgba(130, 69, 230, 0.83);
+		}
+		@media only screen and (hover: none) and (pointer: coarse)and (orientation: landscape){
+
+			#mobile{
+				transform:scale(0.5);
+			}
+			#smile{
+				width: 110px;
+				height: 110px;
+			}
+			
+			#type {
+				font-size: 100%;
+			}
+
+		}
+		@media only screen and (hover: none) and (pointer: coarse)and (orientation: portrait){
+
+			#mobile{
+				transform:scale(1.3);
+			}
+			
+			.main{
+				
+    			margin-top: 20%;
+			}
+			
+			.timeBox{
+				top: 7%
+			}
+
+
+		}
+		
 	</style>
 	<title>TimeBox</title>
+	<meta name="viewport" content="width=850, user-scalable=yes">
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css"
+    />
 </head>
 <body>
-	<div class="round" align="center">Прости, {{data['name']}}. <br> Тут пока пусто!</div>
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+	<div class="svg">
+		<a href="/index">
+			<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+				 width="43px" height="72px" viewBox="227.5 33.5 393 422" enable-background="new 227.5 33.5 393 422" xml:space="preserve">
+			<path fill="#5B7BBB" d="M609.1,226.567c0,18.59-15.08,33.67-33.67,33.67h-4.78v144.274c0,18.6-15.07,33.68-33.67,33.68h-78.57
+				v-87.673c0-18.6-15.08-33.68-33.68-33.68c-18.59,0-33.67,15.08-33.67,33.68v87.673h-78.57c-18.6,0-33.67-15.08-33.67-33.68V260.237
+				h-4.78c-18.59,0-33.67-15.08-33.67-33.67c0-9.22,3.71-17.57,9.7-23.65l0.16-0.16l1.47-1.38l0.01-0.01l148.27-140.63l4.44-4.21
+				l0.02-0.01c5.62-4.41,12.7-7.04,20.39-7.04c7.27,0,13.99,2.35,19.45,6.33l6.19,5.87l147.27,139.67l0.04,0.04l1.64,1.56l0.09,0.09
+				C605.44,209.097,609.1,217.407,609.1,226.567z"/>
+			</svg>
+		</a>
+	</div>
+	<div class="svg2" style="transform: scale(-1, -1);transform:rotate(90deg);">
+		<a href="/check?loseLog=1">
+			<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+				 width="166.737px" height="38.725px" viewBox="30.631 109.132 331.737 203.725"
+				 enable-background="new 30.631 109.132 331.737 203.725" xml:space="preserve">
+			<g>
+				<path fill="#31527A" d="M161,189.351c-11.961,54.961,22.891,109.204,77.852,121.166s109.204-22.891,121.166-77.852
+					c11.961-54.961-22.891-109.204-77.852-121.166S172.961,134.391,161,189.351z M319.71,223.893
+					c-7.117,32.699-39.387,53.434-72.086,46.317s-53.434-39.387-46.317-72.086s39.387-53.434,72.086-46.317
+					S326.827,191.193,319.71,223.893z"/>
+				<path fill="#5173A5" d="M322.815,150.356v41.251H75.88c-13.843,0-25.074-9.238-25.074-20.625c0-11.387,11.231-20.625,25.074-20.625
+					H322.815z"/>
+				<path fill="#476C91" d="M337.425,191.607v41.251H95.107c-13.545,0-24.535-9.238-24.535-20.625s10.99-20.625,24.535-20.625H337.425z
+					"/>
+				<path fill="#416393" d="M361.754,217.23c-1.942,31.265-18.219,61.223-46.596,79.451c-40.985,26.332-93.734,19.577-126.872-13.45
+					c-8.113-8.113-8.113-21.261,0-29.383c7.374-7.374,18.915-8.044,27.054-2.011c1.358,1.495,2.776,2.913,4.263,4.237
+					c19.792,17.824,49.768,20.995,73.255,5.904c1.195-0.773,2.355-1.573,3.48-2.406c-7.253,7.339-7.984,19.113-1.349,27.337
+					c7.15,8.86,20.136,10.253,29.005,3.12c17.489-14.051,30.466-33.946,35.613-57.562c0.137-0.645,0.275-1.289,0.395-1.925
+					c0.112-0.516,0.206-1.031,0.292-1.547c0.034-0.155,0.069-0.309,0.086-0.464c0.069-0.344,0.129-0.688,0.18-1.04
+					c0.086-0.481,0.163-0.963,0.232-1.444c0.026-0.129,0.043-0.266,0.06-0.395c0.077-0.481,0.146-0.971,0.206-1.452
+					c0.043-0.318,0.086-0.627,0.12-0.937c0.077-0.636,0.155-1.272,0.223-1.908c0.06-0.619,0.12-1.238,0.172-1.856
+					c0.017-0.129,0.026-0.249,0.034-0.37C361.668,218.493,361.711,217.866,361.754,217.23z"/>
+				<path fill="#5B7BBB" d="M359.609,232.471c-5.148,23.616-18.125,43.508-35.613,57.556c-8.869,7.14-21.854,5.741-29.005-3.115
+					c-7.073-8.779-5.775-21.582,2.879-28.756c0.077-0.069,0.163-0.129,0.241-0.197c0.009-0.009,0.026-0.017,0.034-0.026
+					c10.39-8.358,18.099-20.184,21.158-34.223c7.116-32.652-13.621-64.876-46.321-71.981c-4.323-0.935-8.628-1.399-12.882-1.399
+					c-0.456,0-0.911,0.009-1.366,0.017H51.257c-11.387,0-20.625-9.225-20.625-20.595s9.238-20.595,20.625-20.595h206.549
+					c7.881-0.172,15.907,0.575,23.951,2.326C336.715,123.427,371.572,177.593,359.609,232.471z"/>
+			</g>
+			</svg>
+		</a>
+	</div>
+	
+	<div class="profile" id="mobile"><img src="{{data['img']}}" id="picture" width="60" height="60"><p id="name">{{data['name']}} {{data['surname']}}</p></div>
+	
+	<div class="main">
+		<img id="smile" src="{{url_for('static',filename = 'smile.png')}}" width="233" height="233">
+		<p id="title">Тут пусто...<br> Я просто ничего не придумал, к сожалению!</p>
+	</div>
 </body>

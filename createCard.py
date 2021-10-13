@@ -186,8 +186,8 @@ def dialog():
     window = sg.Window('Укажите тип', [
         [sg.T('Какого типа пара')],
         [sg.Radio('В любой неделе', 'type', default=True)],
-        [sg.Radio('На чётной неделе', 'type')],
         [sg.Radio('На нечётной неделе', 'type')],
+        [sg.Radio('На чётной неделе', 'type')],
         [sg.Button('Подтвердить', key='accept')],
     ], size=(300, 150), use_default_focus=False, finalize=True)
     while True:
@@ -212,8 +212,8 @@ def UpdR():
     for i in datSel:
         if 'weekType' in i:
             if i['weekType'] == 0: g = '*'
-            elif i['weekType'] == 1: g = 'чёт'
-            elif i['weekType'] == 2: g = 'нечёт'
+            elif i['weekType'] == 1: g = 'нечёт'
+            elif i['weekType'] == 2: g = 'чёт'
         else: g = '*'
         l.append(f"{i['time'][0]} - {i['time'][1]} | {i['name']} | {g}")
     window['-R-'].Update(l)
@@ -504,8 +504,8 @@ while True:
                     window['-info-'].Update(value=i['info'])
                     if 'weekType' in i:
                         if i['weekType'] == 0: g = '*'
-                        elif i['weekType'] == 1: g = 'чёт'
-                        elif i['weekType'] == 2: g = 'нечёт'
+                        elif i['weekType'] == 1: g = 'нечёт'
+                        elif i['weekType'] == 2: g = 'чёт'
                         window['type'].Update(value=g)
                     else: window['type'].Update(value='*')
                     break
