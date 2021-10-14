@@ -67,7 +67,8 @@ def index():
 def signin():
     try:
         auth = json.loads(readStorage('auth.json'))
-    except:
+    except Exception as e:
+        print(e)
         auth = {
             "vkHash": {},
             "accounts": {}
@@ -96,12 +97,8 @@ def signin():
 def check():
     try:
         auth = json.loads(readStorage('auth.json'))
-    except:
-        auth = {
-            "vkHash": {},
-            "accounts": {}
-        }
-        addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+    except Exception as e:
+        print(e)
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
@@ -109,7 +106,6 @@ def check():
         res = make_response(redirect(url_for('dashboard')))
         res.set_cookie('log', auth['vkHash'][request.args.get('hash', '')], max_age=60 * 60 * 24 * 7)
         return res
-
 
     elif request.args.get('loseLog', '') == '1':
         res = make_response(redirect(url_for('signin')))
@@ -147,12 +143,8 @@ def check():
 def signup():
     try:
         auth = json.loads(readStorage('auth.json'))
-    except:
-        auth = {
-            "vkHash": {},
-            "accounts": {}
-        }
-        addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+    except Exception as e:
+        print(e)
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
@@ -170,8 +162,11 @@ def signup():
             "password":request.form['password']
         }
 
-        addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
-        return redirect(url_for('dashboard'))
+        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        res = make_response(redirect(url_for('dashboard')))
+        res.set_cookie('log', idl, max_age=60 * 60 * 24 * 7)
+        return res
+
     elif request.cookies.get('log') in auth['accounts']:
         return redirect(url_for('check'))
 
@@ -190,12 +185,8 @@ def signup():
 def dashboard():
     try:
         auth = json.loads(readStorage('auth.json'))
-    except:
-        auth = {
-            "vkHash": {},
-            "accounts": {}
-        }
-        addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+    except Exception as e:
+        print(e)
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
@@ -211,12 +202,8 @@ def dashboard():
 def file():
     try:
         auth = json.loads(readStorage('auth.json'))
-    except:
-        auth = {
-            "vkHash": {},
-            "accounts": {}
-        }
-        addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+    except Exception as e:
+        print(e)
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
