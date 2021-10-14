@@ -19,6 +19,11 @@ lib = {
     "sun":"воскресенье",
 }
 
+def addStorage(set, name):
+    f = open(name, mode='a', encoding="utf-8")
+    f.write(set)
+    f.close()
+
 def writeStorage(set, name):
     f = open(name, mode='w', encoding="utf-8")
     f.write(set)
@@ -67,7 +72,7 @@ def signin():
             "vkHash": {},
             "accounts": {}
         }
-        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
@@ -96,7 +101,7 @@ def check():
             "vkHash": {},
             "accounts": {}
         }
-        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
@@ -147,7 +152,7 @@ def signup():
             "vkHash": {},
             "accounts": {}
         }
-        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
@@ -165,7 +170,7 @@ def signup():
             "password":request.form['password']
         }
 
-        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
         return redirect(url_for('dashboard'))
     elif request.cookies.get('log') in auth['accounts']:
         return redirect(url_for('check'))
@@ -190,7 +195,7 @@ def dashboard():
             "vkHash": {},
             "accounts": {}
         }
-        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
@@ -211,7 +216,7 @@ def file():
             "vkHash": {},
             "accounts": {}
         }
-        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
