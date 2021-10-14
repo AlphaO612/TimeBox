@@ -20,12 +20,12 @@ lib = {
 }
 
 def addStorage(set, name):
-    f = open(name, mode='a', encoding="utf-8")
+    f = open(pwd+name, mode='a', encoding="utf-8")
     f.write(set)
     f.close()
 
 def writeStorage(set, name):
-    f = open(name, mode='w', encoding="utf-8")
+    f = open(pwd+name, mode='w', encoding="utf-8")
     f.write(set)
     f.close()
 
