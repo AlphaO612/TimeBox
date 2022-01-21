@@ -1,16 +1,17 @@
-<head lang="ru">
-	<style type="text/css">
+<style type="text/css">
 		@import url('https://fonts.googleapis.com/css?family=Ropa%20Sans');
 		@import url('https://fonts.googleapis.com/css?family=PT%20Sans');
 		/* Фон */
 		body {
 			/*background: linear-gradient(118.71deg, #28ABD5 24.35%, #AEE8E8 85.06%), #C4C4C4;*/
 			background: linear-gradient(118.71deg, #284ED5 24.35%, #8039DA 85.06%);
+
+			overflow-x: hidden;
 		}
 
 		A {
 	    	text-decoration: none;
-	    } 
+	    }
 	    /*.lesson:hover {
 		    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.40) 50%, rgba(255, 255, 255, 0) 100%);
 	    } */
@@ -61,7 +62,7 @@
 			margin: auto;
 			position: relative;
 			width: 54%;
-			height: 20%;
+			height: 14%;
 			top: 4.2%;
 			/*left: 23%;
 			right: 23%;*/
@@ -76,11 +77,12 @@
 			/*left: 31%;
 			right: 31%;*/
 
-			font-family: PT Sans;
+			font-family: Ropa Sans;
 			font-style: normal;
 			font-weight: normal;
 			font-size: 400%;
 			text-align: center;
+			letter-spacing: 0.095em;
 
 			color: rgba(255, 255, 255, 0.55);
 		}
@@ -107,7 +109,6 @@
 		.timetableBox{
 			position: relative;
 			height: 59.72%;
-			width: auto;
 			top: 8%;
 			display: flex;
 			margin: auto;
@@ -277,7 +278,7 @@
 		.tut:hover {
 			color: rgba(211, 245, 255, 0.9);
 		}
-		
+
 		#type{
 			font-family: PT Sans;
 			font-style: normal;
@@ -291,60 +292,12 @@
 			top: 2%;
     		color: rgba(211, 245, 255, 1);
 		}
-		.table input{
-			position:relative;
-			width: 410px;
-			height: 52px;
-			
-			top:10%;
-			
-			display: block;
-			margin-left: auto;
-			margin-right: auto;
-			margin-bottom: 10px;
-			
-			border: 1px solid #a9a3b3;
-			border-radius: 16px;
-			font-family: 'PT Sans';
-			font-size: larger;
-		}
-		.table input[type=text]{
-			text-align: center;
-			background: #FFF;
-		}
-		.table input[type=password]{
-			text-align: center;
-			background:  #FFF;
-		}
-		.table input[type=submit]{
-			width: 230px;
-			height: 52px;
-			
-			border: 0px solid #a9a3b3;
-			
-			border-radius: 12px;
-			
-			font-weight: bold;
-			font-size: larger;
-			margin-bottom: 40px;
-			
-			background: #4A2971;
-			filter: drop-shadow(0px 3px 5px rgba(62, 34, 97, 0.74));
-			color: #FFFFFF;
-		}
-		
-		#vk_auth {
-			display: block;
-			margin-left: auto;
-			margin-right: auto;
-		}
 		.profile {
 			margin: 3 auto;
 			position: relative;
+			top:4.2%;
 			width: 450px;
 			height: 82px;
-			left: 0px;
-			top: 6px;
 			display: flex;
 			/* margin-right: -0.25em; */
 			background: rgba(255, 255, 255, 0.96);
@@ -377,6 +330,114 @@
 			color: #000000;
 		}
 
+		.block{
+			height: 66%;
+			background: rgba(255, 255, 255, 0.96);
+			box-shadow: 0px 4px 9px rgb(0 0 0 / 25%);
+			border-radius: 11px;
+			display: flex;
+			margin: auto;
+			margin-top:4%;
+			margin-left: 10%;
+			margin-right:10%;
+			text-align: center;
+			flex-wrap: nowrap;
+    		justify-content: center;
+			overflow-y: auto;
+			transition: 1.2s opacity ease-in-out;
+			padding:2%;
+		}
+
+		.menu{
+			width: 40%;
+			height: auto;
+			display: flex;
+
+			margin-right: 2%;
+
+			text-align: center;
+			flex-direction: column;
+			justify-content: center;
+			overflow-y: auto;
+
+    		flex-wrap: nowrap;
+		}
+
+		.menu #title{
+			font-family: PT Sans;
+			font-style: normal;
+			font-weight: bold;
+			font-size: 600%;
+			margin:0;
+			margin-top:3%;
+
+			letter-spacing: -0.075em;
+		}
+
+		.menu #smile{
+			max-width:70%;
+			height:auto;
+			border-radius: 50%;
+			margin-top: 29px;
+			margin-left: auto;
+    		margin-right: auto;
+
+			box-shadow: 0px 0px 29px 10px rgba(130, 69, 230, 0.83);
+		}
+
+		.main{
+			width:60%;
+			height: auto;
+			display:flex;
+			flex-direction: column;
+			justify-content: center;
+			align-content: center;
+			align-items: center;
+			color:#1D1D1D;
+
+			overflow-x: hidden;
+			overflow-y: auto;
+		}
+		.main #title{
+			font-family: PT Sans;
+			font-style: normal;
+			font-weight: bold;
+			font-size: 200%;
+			letter-spacing: -0.075em;
+			color:#000000;
+			margin:0;
+
+			margin-bottom:2%;
+		}
+		.main #subtitle{
+			font-family: PT Sans;
+			font-style: normal;
+			font-weight: bold;
+			font-size: 130%;
+			letter-spacing: -0.075em;
+
+			margin:0;
+		}
+		.main #text{
+			font-family: PT Sans;
+			font-style: normal;
+			font-size: 114%;
+			font-weight: normal;
+			margin-bottom:2%;
+		}
+		.main #block{
+			width:55%;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.main A[id=subtitle]{
+			color:#1D1D1D;
+		}
+
+
 		.icons{
 			max-width: 100%;
   			height: auto;
@@ -401,30 +462,132 @@
 			right: 3%;
 		}
 
+		.commits{
+			width:90%;
+			height:400px;
+
+			padding:2%;
+
+			font-family: PT Sans;
+			font-style: normal;
+			font-size: 134%;
+			font-weight: normal;
+
+			display:flex;
+			flex-direction: column;
+			margin-bottom:2%;
+
+			overflow-y: auto;
+		}
+
+
+		.card{
+			height:fit-content;
+			display: flex;
+			flex-direction: column;
+			padding: 4%;
+			margin:1%;
+
+			background: rgba(255, 255, 255, 0.68);
+
+			box-shadow: 0px 4px 9px rgba(0, 0, 0, 0.25);
+			border-radius: 11px;
+    		align-items: flex-start;
+		}
+
+		.card #name{
+			width:100%;
+			font-family: PT Sans;
+			font-style: normal;
+			font-size: 100%;
+			font-weight: bold;
+			margin:0;
+		}
+
+		.card #info{
+			font-family: PT Sans;
+			font-style: normal;
+			font-size: 60%;
+			font-weight: normal;
+			color: #8c8c8c;
+			margin:0;
+		}
+
+
 		@media only screen and (hover: none) and (pointer: coarse)and (orientation: landscape){
 
 			#mobile{
 				transform:scale(0.5);
 			}
-			
+			#smile{
+				width: 110px;
+				height: 110px;
+			}
+
 			#type {
 				font-size: 100%;
 			}
 
+			.menu #title{
+				font-size: 320%;
+			}
+
+			.main #title{
+				font-size: 150%;
+
+			}
+			.main #subtitle{
+				font-size: 70%;
+			}
+			.main #text{
+				font-size: 80%;
+			}
+
+			.main #block{
+				width:65%;
+			}
+
+			.commits{
+				height:190px;
+			}
+
+			.card #name{
+				font-size: 70%;
+				margin:0;
+			}
+
+			.card #info{
+				font-size: 40%;
+			}
 		}
+
 		@media only screen and (hover: none) and (pointer: coarse)and (orientation: portrait){
 
 			#mobile{
 				transform:scale(1.3);
 			}
-			
-			.timeBox{
-				top: 7%
+
+			.main{
+
+    			margin-top: 20%;
 			}
 
+			.menu #title{
+				font-size: 200%;
+			}
+
+			.timeBox{
+				top: 7%;
+				height:18%;
+			}
+
+			.menu #title{
+				font-size: 250%;
+			}
 		}
-		
+
 	</style>
+<head lang="ru">
 	<title>TimeBox</title>
 	<meta name="viewport" content="width=850, user-scalable=yes">
 	<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
@@ -443,25 +606,46 @@
 	</div>
 	<div class="icons" id="svg2">
 		<a href="/check?loseLog=1">
-			<img src="{{url_for('static',filename = 'svgs/profile.svg')}}" width="40" height="40"/>
+			<img src="{{url_for('static',filename = 'svgs/LogIn.svg')}}" width="40" height="40"/>
 		</a>
 	</div>
 
 	<div class="timeBox" id="mobile">
-		<p class="datetext">Регистрация</p>
+		<p class="datetext"><a href="{{data['-']}}" class="tut" hidden> </a>{{data['day']}}<a href="{{data['+']}}" class="tut" hidden> </a></p>
 		<div class="line"></div>
+		<p class="nametext">{{data['name']}}</p>
 	</div>
-	<div class="timetableBox">
-		<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
-		<form enctype="multipart/form-data" method="POST" action="{{data['way']}}" class="table">
-			<div class="profile"><img src="{{request.args.get('photo','').replace('amp;','')}}" id="picture" width="60" height="60"><p id="name">{{data['name']}} {{data['surname']}}</p></div>
-			<label><input name="login" placeholder="Логин" required type='text'/></label>
-			<label><input name="password" placeholder="Пароль" required type='password'/></label>
-			<input name="hash" type="hidden" value="{{data['hash']}}"/>
-			<input name="uid" type="hidden" value="{{data['uid']}}"/>
-			<label><input type="submit" value="Вход"/></label>
-		</form>
-		
 
+	<div class="block">
+		<div class="menu">
+			<img id="smile" src="{{data['img']}}" width="233" height="233">
+			<p id="title">{{data['title']}}</p>
+		</div>
+		<div class="main">
+			<div id="title">{{data['subname']}}</div>
+			{% if 'commits' in data %}
+				<div class="commits">
+					{% for i in data['commits'] %}
+						<div class="card">
+							{% autoescape false %}
+								<p id="name">{{i['name'].replace("\n","<br>")}}</p>
+							{% endautoescape %}
+							<p id="info">{{i['author']}} - {{i['date']}}</p>
+						</div>
+					{% endfor %}
+				</div>
+			{% else %}
+				{% autoescape false %}
+					<div id="text">{{data['text'].replace("\n","<br>")}}</div>
+				{% endautoescape %}
+			{% endif %}
+
+			<div id="block">
+				{% for i in data['links'] %}
+				<a href="{{i['link']}}" id="subtitle">{{i['name']}}</a>
+				{% endfor %}
+			</div>
+			<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" id="subtitle" style="color:606060;">Старая версия страницы :))</a>
+		</div>
 	</div>
 </body>

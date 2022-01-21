@@ -10,7 +10,7 @@
 
 		A {
 	    	text-decoration: none;
-	    } 
+	    }
 	    /*.lesson:hover {
 		    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.40) 50%, rgba(255, 255, 255, 0) 100%);
 	    } */
@@ -76,11 +76,12 @@
 			/*left: 31%;
 			right: 31%;*/
 
-			font-family: PT Sans;
+			font-family: Ropa Sans;
 			font-style: normal;
 			font-weight: normal;
 			font-size: 400%;
 			text-align: center;
+			letter-spacing: 0.095em;
 
 			color: rgba(255, 255, 255, 0.55);
 		}
@@ -107,7 +108,6 @@
 		.timetableBox{
 			position: relative;
 			height: 59.72%;
-			width: auto;
 			top: 8%;
 			display: flex;
 			margin: auto;
@@ -117,6 +117,7 @@
 			overflow-y: auto;
 			transition: 1.2s opacity ease-in-out;
 		}
+
 
 		/* ТекстУрока */
 		.lesson{
@@ -291,97 +292,10 @@
 			top: 2%;
     		color: rgba(211, 245, 255, 1);
 		}
-		.table input{
-			position:relative;
-			width: 410px;
-			height: 52px;
-			
-			top:10%;
-			
-			display: block;
-			margin-left: auto;
-			margin-right: auto;
-			margin-bottom: 10px;
-			
-			border: 1px solid #a9a3b3;
-			border-radius: 16px;
-			font-family: 'PT Sans';
-			font-size: larger;
-		}
-		.table input[type=text]{
-			text-align: center;
-			background: #FFF;
-		}
-		.table input[type=password]{
-			text-align: center;
-			background:  #FFF;
-		}
-		.table input[type=submit]{
-			width: 230px;
-			height: 52px;
-			
-			border: 0px solid #a9a3b3;
-			
-			border-radius: 12px;
-			
-			font-weight: bold;
-			font-size: larger;
-			margin-bottom: 40px;
-			
-			background: #4A2971;
-			filter: drop-shadow(0px 3px 5px rgba(62, 34, 97, 0.74));
-			color: #FFFFFF;
-		}
-		
-		#vk_auth {
-			display: block;
-			margin-left: auto;
-			margin-right: auto;
-		}
-		.profile {
-			margin: 3 auto;
-			position: relative;
-			width: 450px;
-			height: 82px;
-			left: 0px;
-			top: 6px;
-			display: flex;
-			/* margin-right: -0.25em; */
-			background: rgba(255, 255, 255, 0.96);
-			box-shadow: 0px 4px 9px rgb(0 0 0 / 25%);
-			border-radius: 11px;
-			flex-direction: row;
-			justify-content: flex-start;
-			align-content: center;
-			align-items: center;
-		}
-		.profile #picture{
-			margin-left: 30px;
-			border-radius: 50%;
-			box-shadow: 0px 0px 10px 3px rgba(130, 69, 230, 0.4);
-		}
-		.profile #name{
-			margin-left: 20px;
-			position: static;
-			width: 623px;
-			height: 16px;
-			left: 13px;
-			top: 18px;
-			font-family: PT Sans;
-			font-style: normal;
-			font-weight: normal;
-			font-size: 24px;
-			line-height: 68.2%;
-			align-items: center;
-			letter-spacing: -0.045em;
-			color: #000000;
-		}
 
 		.icons{
 			max-width: 100%;
   			height: auto;
-  			position: absolute;
-  			top:3%;
   			opacity: 0.5;
 
 			transition: 0.08s opacity ease-in-out;
@@ -393,15 +307,87 @@
 		/* home */
 		#svg{
 			position: absolute;
+			top:3%;
 			left: 3%;
 		}
 
 		#svg2{
 			position: absolute;
+			top:3%;
 			right: 3%;
 		}
 
+		#svg3{
+			position: absolute;
+			right: 3%;
+			bottom:3%;
+		}
+
+		.title{
+			font-family: Ropa Sans;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 400%;
+			text-align: center;
+			letter-spacing: 0.095em;
+			margin:0 0 1% 0;
+			color: #fff;
+		}
+
+		.month{
+			display:flex;
+			flex-direction: column;
+		}
+		.month #week{
+			width:100%;
+			margin-bottom: 5px;
+		}
+		.month #day{
+			position:relative;
+			width:3%;
+			height:0;
+
+
+			margin-left: 2.5px;
+			margin-right: 2.5px;
+
+			padding-bottom: 3%;
+
+			display:inline-block;
+
+			background: rgba(255,255,255,0.98);
+			border: 4px;
+
+			border-radius: 15%;
+
+			font-family: Ropa Sans;
+			color: #252525;
+			font-style: normal;
+			font-size: 255%;
+			text-align: center;
+		}
+		.month A{
+			text-decoration:none;
+			color: #252525;
+		}
+
+		.month .off{opacity:0.5;}
+
 		@media only screen and (hover: none) and (pointer: coarse)and (orientation: landscape){
+
+			.month{}
+
+			.month #day{
+				position:relative;
+				width:3%;
+				height:0;
+				padding-bottom: 3%;
+				border: 2px;
+
+				border-radius: 15%;
+
+				font-size: 150%;
+			}
 
 			#mobile{
 				transform:scale(0.5);
@@ -411,8 +397,25 @@
 				font-size: 100%;
 			}
 
+			.title{
+				font-size: 300%;
+			}
 		}
 		@media only screen and (hover: none) and (pointer: coarse)and (orientation: portrait){
+
+			.month{}
+
+			.month #day{
+				position:relative;
+				width:10%;
+				height:0;
+				padding-bottom: 10%;
+				border: 2px;
+
+				border-radius: 15%;
+
+				font-size: 490%;
+			}
 
 			#mobile{
 				transform:scale(1.3);
@@ -422,8 +425,13 @@
 				top: 7%
 			}
 
+			.title{
+				font-size: 1000%;
+			}
+
 		}
 		
+
 	</style>
 	<title>TimeBox</title>
 	<meta name="viewport" content="width=850, user-scalable=yes">
@@ -446,22 +454,35 @@
 			<img src="{{url_for('static',filename = 'svgs/profile.svg')}}" width="40" height="40"/>
 		</a>
 	</div>
+	<div class="icons" id="svg3">
+			<a href="/box{{data['way']}}">
+				<img src="{{url_for('static',filename = 'svgs/menu.svg')}}" width="40" height="40"/>
+			</a>
+	</div>
 
+	{% if data['now'] %}
+	<p id="type" id="mobile"><a href="/calendar" style="color:rgb(255 135 235);text-decoration-line:underline;">{{data['textTime']}}</a></p>
+	{% else %}
+	<p id="type" id="mobile">{{data['textTime']}}</p>
+	{% endif %}
 	<div class="timeBox" id="mobile">
-		<p class="datetext">Регистрация</p>
+		<p class="datetext"><a href="{{data['-']}}" class="tut">< </a>{{data['day']}}<a href="{{data['+']}}" class="tut"> ></a></p>
 		<div class="line"></div>
+		<p class="nametext">{{data['name']}}</p>
 	</div>
 	<div class="timetableBox">
-		<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
-		<form enctype="multipart/form-data" method="POST" action="{{data['way']}}" class="table">
-			<div class="profile"><img src="{{request.args.get('photo','').replace('amp;','')}}" id="picture" width="60" height="60"><p id="name">{{data['name']}} {{data['surname']}}</p></div>
-			<label><input name="login" placeholder="Логин" required type='text'/></label>
-			<label><input name="password" placeholder="Пароль" required type='password'/></label>
-			<input name="hash" type="hidden" value="{{data['hash']}}"/>
-			<input name="uid" type="hidden" value="{{data['uid']}}"/>
-			<label><input type="submit" value="Вход"/></label>
-		</form>
-		
-
+		<p class="title">{{data['title']}}</p>
+		<div class="month">
+		{% for week in data['month'] %}
+			<div id="week">
+				{% for day in week %}
+					{% if day['on'] %}
+						<a href="{{day['link']}}" alt="{{day['info']}}" ><div id="day" style="{{day['color']}}">{{day['name']}}</div></a>
+					{% else %}
+						<div id="day" class="off">&nbsp;</div>
+					{% endif %}
+				{% endfor %}
+			</div>
+		{% endfor %}
 	</div>
 </body>
