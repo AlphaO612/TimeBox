@@ -351,7 +351,7 @@ def aboutus():
         for i in info: date['commits'].append({
             "author":i['commit']['author']['name'],
             "date": i['commit']['author']['date'],
-            "name": i['commit']['message'],
+            "name": i['commit']['message'].replace("\n","</div><div>"),
         })
     if 'author' in args: date["text"] = \
 """Создал сие проект - я, Иванов Андрей!

@@ -496,7 +496,6 @@
 		}
 
 		.card #name{
-			width:100%;
 			font-family: PT Sans;
 			font-style: normal;
 			font-size: 100%;
@@ -628,7 +627,7 @@
 					{% for i in data['commits'] %}
 						<div class="card">
 							{% autoescape false %}
-								<p id="name">{{i['name'].replace("\n","<br>")}}</p>
+								<div id="name">{{i['name']}}</div>
 							{% endautoescape %}
 							<p id="info">{{i['author']}} - {{i['date']}}</p>
 						</div>
