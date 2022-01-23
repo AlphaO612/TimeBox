@@ -152,8 +152,7 @@ def check():
         return res
 
     elif request.cookies.get('log') in auth['accounts']:
-        if request.args.get('show'): return str(auth['accounts'][request.cookies.get('log')])+f"<br><a href=\"{url_for('index')}\"> Back to /index</a>"
-        else: return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard'))
 
     elif request.method == 'POST':
         login, password = request.form['login'], request.form['password']
@@ -227,135 +226,54 @@ def dashboard():
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
-    pattern = {
-        "profile": {
-            "id": "profile",
-            "name": "Профиль",
-            "link": url_for('dashboard'),
-            "content": {
-                "half": True,
-                "items": [
-                    {
-                        "type":"multiline",
-                        "content":{
-                            "name":"Логин",
-                            "input":{
-                                "value":"login",
-                                "placeholder":"Логин"
-                            },
-                            "button":{
-                                "name":"Изменить"
-                            }
-                        }
-                    },
-                    {
-                        "type": "multiline",
-                        "content": {
-                            "name": "Пароль",
-                            "text": {
-                                "value": "********",
-                                "placeholder": "Пароль"
-                            },
-                            "a":{
-                                "name":"Изменить",
-                                "link": ""
-                            }
-                        }
-                    },
-                    {
-                        "type":"title",
-                        "content":"Интеграция"
-                    },
-                    {
-                        "type": "multiline",
-                        "content": {
-                            "name": "ВКонтакте",
-                            "text": {
-                                "value": "Включён",
-                                "placeholder": ""
-                            }
-                        }
-                    },
-
-                ]
-            }
-        },
-        "setting": {
-            "id": "setting",
-            "name": "Настройки сайта",
-            "link": url_for('dashboard', setting=1),
-            "content": {
-                "half": False,
-                "items": [
-                    {
-                        "type": "multiline",
-                        "content": {
-                            "name": "API-Система",
-                            "text": {
-                                "value": "подключенных устройств",
-                                "placeholder": ""
-                            },
-                            "a": {"name": "Изменить", 'link': ""}
-                        }
-                    },
-                    {
-                        "type": "multiline",
-                        "content": {
-                            "name": "Заявка на контроль расписания",
-                            "text": {
-                                "value": "status",
-                                "placeholder": ""
-                            },
-                            "a": {"name": "Подать/скачать", 'link': ""}
-                        }
-                    },
-                    {
-                        "type":"title",
-                        "content":"Сбор данных"
-                    },
-                    {
-                        "type": "multiline",
-                        "content": {
-                            "name": "Показать все хранимые о вас данные?",
-                            "a": {"name": "Показать", "link": url_for('check', show=1)}
-                        }
-                    },
-                ]
-            }
-        },
-        "logOut": {
-            "id": "logOut",
-            "name": "Выйти",
-            "link": url_for('check', loseLog=1),
-            "style":"color:#ff0000;"
-        },
-        "error":{
-            "id": "logOut",
-            "name": "Ошибка!",
-            "content": {
-                "half": False,
-                "items": [
-                    {
-                        "type":"title",
-                        "content":"Прости, но такой страницы нет!"
-                    }
-                ]
-            },
-
-        }
-    }
+    pattern = json.loads(readStorage("templates/dashboard.json"))
+    # writeStorage(json.dumps(pattern, ensure_ascii=False), 'dashboard.json')
 
     if request.cookies.get('log') in auth['accounts']:
-        data = auth['accounts'][request.cookies.get('log')]
+        data = {
+            "pattern": pattern,
+            "userData": auth['accounts'][request.cookies.get('log')],
+            "list": list(pattern),
+            "way": url_for("dashboard", page="changeLogin"),
+        }
+        #data["userData"].pop("password")
+        data["userData"]['api']={"number":121}# testVariable
+        data["userData"]['statusTimeBox']=False# testVariable
 
-        args = list(request.args)
-        data['pattern']=pattern
-        data['list'] = list(pattern)
-        data['list'].remove("error")
-        if len(args): data['id'] = (args[0] if args[0] in data['list'] else "error")
-        else: data['id'] = pattern[data['list'][0]]['id']
+        args = request.args.get('page')
 
-        print(json.dumps(data))
+        if args:
+            if args in data['list'] : data['id'] = args
+            else: data['id'] = "error"
+        else: data['id'] = data['list'][0]
+
+        if 'content' in data['pattern'][data['id']]:
+            items = data['pattern'][data['id']]['content']['items']
+            for item in items:
+                for line in list(item['content']):
+                    if line !="name":
+                        if type(item['content'][line]) == dict: array = item['content'][line]['value']
+                        else: array = item['content']['value']
+                        array=array.split("<#>")
+                        if "-@" in array[0] and len(array)>1:
+                            array[0]=array[0].replace("-@","")
+                            path=array[0].split("|")
+                            lastElement = path[len(path) - 1].split("->")
+                            try:
+                                info = data
+                                for i in range(len(path)-1): info = info[path[i]]
+                            except: raise RuntimeError(f'Неправильно указали путь, либо его не существует - {str(path)}')
+                            else:
+                                part = (item['content'][line] if type(item['content'][line]) == dict else item['content'])
+                                if len(lastElement)>1:
+                                    element=lastElement[1].split("/")
+                                    part['value']=str(element[0] if info[lastElement[0]] else element[1])
+                                else: part['value']=str(info[lastElement[0]]) + array[1]
+        info = data['list'].copy()
+        for i in info:
+            if data['pattern'][i]['hidden']: data['list'].remove(i)
+
+        print(json.dumps(data, ensure_ascii=False))
         return render_template('roomNew.html', data=data)
     else:
         res = make_response(redirect(url_for('signin')))

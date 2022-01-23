@@ -433,11 +433,11 @@
 			align-items: center;
 		}
 		.main #point{
-			width:100%;
+   			 width: fit-content;
 			display: flex;
 			flex-direction: row;
 			justify-content: center;
-			align-items: center;
+			align-items: baseline;
 		}
 		.main #point > div,input,button{
 			flex: 1 1 auto;
@@ -462,14 +462,14 @@
 
 		.main #button{
 			height:fit-content;
-			width:auto;
+			width:fit-content;
 
 			display: flex;
 			flex-direction: column;
 			align-items: center;
     		justify-content:center;
 
-			padding: 2%;
+    		padding: 0.8vh;
 
 			background: rgba(255, 255, 255, 0.68);
 
@@ -600,12 +600,11 @@
 			align-items: center;
 		}
 
-
 		.partHalf #smile{
-			max-width:70%;
+			max-width:65%;
 			height:auto;
 			border-radius: 50%;
-			margin-top: 29px;
+			margin-bottom: 5%;
 			margin-left: auto;
     		margin-right: auto;
 
@@ -721,7 +720,7 @@
 		</a>
 	</div>
 
-	<div class="profile" id="mobile"><img src="{{data['img']}}" id="picture" width="60" height="60"><p id="nameProfile">{{data['name']}} {{data['surname']}}</p></div>
+	<div class="profile" id="mobile"><img src="{{data['userData']['img']}}" id="picture" width="60" height="60"><p id="nameProfile">{{data['userData']['name']}} {{data['userData']['surname']}}</p></div>
 
 	<div class="block">
 		<div class="menu">
@@ -739,27 +738,28 @@
 			<div class="partHalf">
 				{% if data['pattern'][data['id']]['content']['half'] %}
 					<div id="half">
-						<img id="smile" src="{{data['img']}}" width="233" height="233">
-						<p id="title">{{data['name']}} {{data['surname']}}</p>
+						<img id="smile" src="{{data['userData']['img']}}" width="233" height="233">
+						<p id="title">{{data['userData']['name']}} {{data['userData']['surname']}}</p>
 					</div>
 				{% endif %}
-					<div id="half" style="width:100%;">
-						<form enctype="multipart/form-data" method="POST" action="{{data['way']}}" >
+					<form enctype="multipart/form-data" method="POST" action="{{data['way']}}"  id="half" style="width:100%;">
+						<input name="hash" type="hidden" value="{{data['userData']['hash']}}"/>
+						<input name="uid" type="hidden" value="{{data['userData']['uid']}}"/>
 						{% for i in data['pattern'][data['id']]['content']['items'] %}
 							{% set bulat = i['type'] %}
 							{% if bulat == 'title' %}
-								<div id="title">{{i['content']}}</div>
+								<div id="title">{{i['content']['value']}}</div>
 							{% endif %}
 							{% if bulat == 'button' %}
 								{% if 'button' in i['content'] %}
-									<button type="submit" id="button" style="{{i['style']}}">{{i['content']['button']['name']}}</button>
+									<button type="submit" id="button" style="{{i['content']['button']['style']}}">{{i['content']['button']['value']}}</button>
 								{% elif 'a' in i['content'] %}
-									<a href="{{i['content']['a']['link']}}" id="button">{{i['content']['a']['name']}}</a>
+									<a href="{{i['content']['a']['link']}}" id="button" style="{{i['content']['a']['style']}}">{{i['content']['a']['value']}}</a>
 								{% endif %}
 							{% endif %}
 							{% if bulat == 'text' %}
 								{% autoescape false %}
-									<div id="text" style="{{i['style']}}" style="width:100%;">{{i['content']}}</div>
+									<div id="text" style="{{i['style']}}" style="width:100%;">{{i['content']['value']}}</div>
 								{% endautoescape %}
 							{% endif %}
 							{% if bulat == 'multiline' %}
@@ -767,21 +767,20 @@
 									<div id="subtitle" style="width: auto;flex: none;">{{i['content']['name']}}:</div>
 
 									{% if "input" in i['content'] %}
-										<input id="input" type="text" placeholder="{{i['content']['input']['placeholder']}}" value="{{i['content']['input']['value']}}" style="width:50%"/>
+										<input id="input" name="i['content']['input']['name']" type="text" placeholder="{{i['content']['input']['placeholder']}}" value="{{i['content']['input']['value']}}" style="width:50%"/>
 									{% elif "text" in i['content'] %}
 										<div id="text" alt="{{i['content']['text']['placeholder']}}" style="width: auto;flex: none;">{{i['content']['text']['value']}}</div>
 									{% endif %}
 
 									{% if 'button' in i['content'] %}
-										<button type="submit" id="button">{{i['content']['button']['name']}}</button>
+										<button type="submit" id="button">{{i['content']['button']['value']}}</button>
 									{% elif 'a' in i['content'] %}
-										<a href="{{i['content']['a']['link']}}" id="button">{{i['content']['a']['name']}}</a>
+										<a href="{{i['content']['a']['link']}}" id="button">{{i['content']['a']['value']}}</a>
 									{% endif %}
 								</div>
 							{% endif %}
 						{% endfor %}
-					</form>
-				</div>
+				</form>
 			</div>
 			{% if 'links' in data %}
 				<div id="block">
