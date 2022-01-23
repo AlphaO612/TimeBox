@@ -97,7 +97,6 @@ def index():
     '''
     return render_template('index.html', data=date)
 
-
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     try:
@@ -153,7 +152,8 @@ def check():
         return res
 
     elif request.cookies.get('log') in auth['accounts']:
-        return redirect(url_for('dashboard'))
+        if request.args.get('show'): return str(auth['accounts'][request.cookies.get('log')])+f"<br><a href=\"{url_for('index')}\"> Back to /index</a>"
+        else: return redirect(url_for('dashboard'))
 
     elif request.method == 'POST':
         login, password = request.form['login'], request.form['password']
@@ -169,7 +169,9 @@ def check():
         if response.status_code == 200:
             with open(pwd + "photos/time.png", 'wb') as f:
                 f.write(response.content)
-        return redirect(url_for('signup', hash=request.args.get('hash', ''), uid=request.args.get('uid', ''),
+        return redirect(url_for('signup',
+                                hash=request.args.get('hash', ''),
+                                uid=request.args.get('uid', ''),
                                 name=request.args.get('first_name', ''),
                                 surname=request.args.get('last_name', ''),
                                 photo=str(request.args.get('photo', ''))))
@@ -194,7 +196,8 @@ def signup():
             "hash": request.args.get('hash', ''),
             "uid": request.args.get('uid', ''),
             "login": request.form['login'],
-            "password": request.form['password']
+            "password": request.form['password'],
+            "id":idl
         }
 
         writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
@@ -224,9 +227,136 @@ def dashboard():
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
+    pattern = {
+        "profile": {
+            "id": "profile",
+            "name": "Профиль",
+            "link": url_for('dashboard'),
+            "content": {
+                "half": True,
+                "items": [
+                    {
+                        "type":"multiline",
+                        "content":{
+                            "name":"Логин",
+                            "input":{
+                                "value":"login",
+                                "placeholder":"Логин"
+                            },
+                            "button":{
+                                "name":"Изменить"
+                            }
+                        }
+                    },
+                    {
+                        "type": "multiline",
+                        "content": {
+                            "name": "Пароль",
+                            "text": {
+                                "value": "********",
+                                "placeholder": "Пароль"
+                            },
+                            "a":{
+                                "name":"Изменить",
+                                "link": ""
+                            }
+                        }
+                    },
+                    {
+                        "type":"title",
+                        "content":"Интеграция"
+                    },
+                    {
+                        "type": "multiline",
+                        "content": {
+                            "name": "ВКонтакте",
+                            "text": {
+                                "value": "Включён",
+                                "placeholder": ""
+                            }
+                        }
+                    },
+
+                ]
+            }
+        },
+        "setting": {
+            "id": "setting",
+            "name": "Настройки сайта",
+            "link": url_for('dashboard', setting=1),
+            "content": {
+                "half": False,
+                "items": [
+                    {
+                        "type": "multiline",
+                        "content": {
+                            "name": "API-Система",
+                            "text": {
+                                "value": "подключенных устройств",
+                                "placeholder": ""
+                            },
+                            "a": {"name": "Изменить", 'link': ""}
+                        }
+                    },
+                    {
+                        "type": "multiline",
+                        "content": {
+                            "name": "Заявка на контроль расписания",
+                            "text": {
+                                "value": "status",
+                                "placeholder": ""
+                            },
+                            "a": {"name": "Подать/скачать", 'link': ""}
+                        }
+                    },
+                    {
+                        "type":"title",
+                        "content":"Сбор данных"
+                    },
+                    {
+                        "type": "multiline",
+                        "content": {
+                            "name": "Показать все хранимые о вас данные?",
+                            "a": {"name": "Показать", "link": url_for('check', show=1)}
+                        }
+                    },
+                ]
+            }
+        },
+        "logOut": {
+            "id": "logOut",
+            "name": "Выйти",
+            "link": url_for('check', loseLog=1),
+            "style":"color:#ff0000;"
+        },
+        "error":{
+            "id": "logOut",
+            "name": "Ошибка!",
+            "content": {
+                "half": False,
+                "items": [
+                    {
+                        "type":"title",
+                        "content":"Прости, но такой страницы нет!"
+                    }
+                ]
+            },
+
+        }
+    }
+
     if request.cookies.get('log') in auth['accounts']:
         data = auth['accounts'][request.cookies.get('log')]
-        return render_template('room.html', data=data)
+
+        args = list(request.args)
+        data['pattern']=pattern
+        data['list'] = list(pattern)
+        data['list'].remove("error")
+        if len(args): data['id'] = (args[0] if args[0] in data['list'] else "error")
+        else: data['id'] = pattern[data['list'][0]]['id']
+
+        print(json.dumps(data))
+        return render_template('roomNew.html', data=data)
     else:
         res = make_response(redirect(url_for('signin')))
         res.set_cookie('log', '', max_age=0)
@@ -552,7 +682,6 @@ def les(name=None):
         print(deadline)
         deadline = int(deadline.timestamp())
         return redirect(url_for('les', name=name, time=deadline))
-
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80)
