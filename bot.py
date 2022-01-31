@@ -159,7 +159,6 @@ buttons = {
 
 
 async def checkMsgs():
-
     for i in main.readTypeEvents("message_new"):
         command = i['message']['text'].lower().split()
         content = {
@@ -168,25 +167,30 @@ async def checkMsgs():
         }
         if command[0] == "помощь":
             content['text'] = "Проверяй мои кнопки!"
+
         elif command[0] == "подтвердить" and len(command) > 1:
             auth = json.loads(readStorage("auth.json"))
             trigger = None
             for a in auth["timeToken"]:
-                print(type(i['message']['from_id']))
                 if a['uid'] == str(i['message']['from_id']):
                     trigger = a
-                    if trigger in auth['accounts'][auth["vkHash"][trigger["hash"]]]["api"]["timeToken"]:
-                        if i['message']['date'] - trigger['time'] <= 3600 and trigger['token'] and str(trigger['token']) == command[1]:
-                            auth['accounts'][auth["vkHash"][trigger["hash"]]][trigger['type']] = trigger[trigger['type']]
-                            content['text'] = "Всё прошло успешно! \nИзменения приняты!"
+                    account = auth['accounts'][auth["vkHash"][trigger["hash"]]]
+                    if trigger in account["api"]["timeToken"]:
+                        if i['message']['date'] - trigger['time'] <= 3600\
+                                and trigger['type'] in account and trigger['type'] not in ["hash", "uid", "surname"]:
+                            account[trigger['type']] = trigger[trigger['type']]
+                            content['text'] = f"Всё прошло успешно, изменения приняты!\n Теперь ваш {trigger['type']} - {trigger[trigger['type']]}"
                         else:
                             content['text'] = "Время ожидания истекло или вы неправильно ввели код!( \nПопытайтесь ещё раз провести процедуру заново!"
-                auth['timeToken'].remove(trigger)
-                auth['accounts'][auth["vkHash"][trigger["hash"]]]["api"]["timeToken"].remove(trigger)
+                if trigger in auth['timeToken']:
+                    auth['timeToken'].remove(trigger)
+                if trigger in account["api"]["timeToken"]:
+                    account["api"]["timeToken"].remove(trigger)
                 writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
                 if trigger != None: break
+
             if trigger == None:
-                content['text'] = "Такого нет кода"
+                content['text'] = "Время ожидания истекло или вы неправильно ввели код!( \nПопытайтесь ещё раз провести процедуру заново!"
         else:
             content['text'] = "Прости, но видно команда не правильно написана!"
 

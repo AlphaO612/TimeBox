@@ -251,33 +251,32 @@ def dashboard():
             typeInput = forms[0]
 
             for i in forms:
-                if i in data["userData"]:
+                if i in data["userData"] and i != "login":
                     if request.form[i] != data["userData"][i]:
                         trigger = False
                         break
-            if trigger:
 
-                if typeInput == "login":
-                    data['textMsg'] = "Готово!"
-                    auth['accounts'][request.cookies.get('log')]['login'] = request.form['login']
-                    writeStorage(json.dumps(auth, ensure_ascii=False),"auth.json")
-                elif typeInput == "password" and request.form["New1Password"] == request.form["New2Password"]:
-                    auth = json.loads(readStorage("auth.json"))
-                    if "timeToken" not in auth: auth["timeToken"] = []
-                    token = {
-                        "type": "password",
-                        "uid": data["userData"]['uid'],
-                        "time": int(datetime.datetime.today().timestamp()), # на час отличается - минусуй!
-                        "password": request.form["New1Password"],
-                        "hash": data["userData"]['hash'],
-                        "token": randint(100000,1000000)
-                    }
+            if trigger and typeInput in data["userData"] and typeInput not in ["hash", "uid", "surname"]:
+                auth = json.loads(readStorage("auth.json"))
+                if "timeToken" not in auth: auth["timeToken"] = []
+                token = {
+                    "type": typeInput,
+                    "uid": data["userData"]['uid'],
+                    "time": int(datetime.datetime.today().timestamp()),  # на час отличается - минусуй!
+                    "hash": data["userData"]['hash'],
+                    "token": randint(100000, 1000000)
+                }
 
+                if typeInput == "login" or typeInput == "password" and request.form["New1Password"] == request.form["New2Password"]:
+                    trigger = False
+                    token[typeInput] = request.form[typeInput]
+
+                if not trigger:
                     for i in auth["timeToken"]:
-                        if i['uid'] == auth['accounts'][request.cookies.get('log')]['uid'] and i['type'] == "password":
+                        if i['uid'] == auth['accounts'][request.cookies.get('log')]['uid'] and i['type'] == typeInput:
                             auth["timeToken"].remove(i)
                     for i in auth['accounts'][request.cookies.get('log')]['api']['timeToken']:
-                        if 'password' in i:
+                        if typeInput in i:
                             auth['accounts'][request.cookies.get('log')]['api']['timeToken'].remove(i)
 
                     auth["timeToken"].append(token)
