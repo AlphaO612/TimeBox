@@ -13,8 +13,11 @@
             "name": "Логин",
             "input": {
               "name": "login",
-              "value": "-@userData|login<#>",
-              "placeholder": "Логин"
+              "type": "text",
+              "placeholder": "Логин",
+              "min": 6,
+              "max": 12,
+              "value": "-@userData|login<#>"
             },
             "button": {
               "value": "Изменить"
@@ -56,7 +59,7 @@
             },
             "a": {
               "value": "Изменить",
-              "link": ""
+              "link": "/dashboard/api"
             }
           }
         },
@@ -128,6 +131,67 @@
       ]
     }
   },
+  "changePassword": {
+    "id": "setting",
+    "name": "Смена пароля",
+    "hidden": true,
+    "link": "/dashboard?page=showInfo",
+    "content": {
+      "half": false,
+      "items": [
+        {
+          "type": "multiline",
+          "content": {
+            "name": "Старый пароль",
+            "input": {
+              "name": "password",
+              "value": "",
+              "type": "password",
+              "placeholder": "Старый пароль",
+              "min": 6,
+              "max": 15
+            }
+          }
+        },
+        {
+          "type": "multiline",
+          "content": {
+            "name": "Новый пароль",
+            "input": {
+              "name": "New1Password",
+              "value": "",
+              "type": "password",
+              "placeholder": "Новый пароль",
+              "min": 6,
+              "max": 15
+            }
+          }
+        },
+        {
+          "type": "multiline",
+          "content": {
+            "name": "Повторите пароль",
+            "input": {
+              "name": "New2Password",
+              "value": "",
+              "type": "password",
+              "placeholder": "Повторите пароль",
+              "min": 6,
+              "max": 15
+            }
+          }
+        },
+        {
+          "type": "button",
+          "content": {
+            "button": {
+              "value": "Изменить пароль"
+            }
+          }
+        }
+      ]
+    }
+  },
   "error": {
     "id": "error",
     "hidden": true,
@@ -139,6 +203,22 @@
           "type": "text",
           "content": {
             "value": "<div id=\"title\" style=\"color:#ff2020;\">Прости, но такой страницы нет!</div></div><div id=\"subtitle\">Выберите в меню пункт!"
+          }
+        }
+      ]
+    }
+  },
+  "formRead": {
+    "id": "formRead",
+    "hidden": true,
+    "name": "Изменения данных!",
+    "content": {
+      "half": false,
+      "items": [
+        {
+          "type": "text",
+          "content": {
+            "value": "-@textMsg<#></div><div id=\"subtitle\">Выберите в меню пункт!"
           }
         }
       ]

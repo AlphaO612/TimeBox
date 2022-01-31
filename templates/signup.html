@@ -455,8 +455,8 @@
 		<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
 		<form enctype="multipart/form-data" method="POST" action="{{data['way']}}" class="table">
 			<div class="profile"><img src="{{request.args.get('photo','').replace('amp;','')}}" id="picture" width="60" height="60"><p id="name">{{data['name']}} {{data['surname']}}</p></div>
-			<label><input name="login" placeholder="Логин" required type='text'/></label>
-			<label><input name="password" placeholder="Пароль" required type='password'/></label>
+			<label><input name="login" placeholder="Логин" required type='text' minlength="6" maxlength="15"/></label>
+			<label><input name="password" placeholder="Пароль" required type='password' minlength="6" maxlength="15"/></label>
 			<input name="hash" type="hidden" value="{{data['hash']}}"/>
 			<input name="uid" type="hidden" value="{{data['uid']}}"/>
 			<label><input type="submit" value="Вход"/></label>

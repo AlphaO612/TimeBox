@@ -9,7 +9,7 @@ from time import sleep
 import datetime, json, os, codecs, requests
 
 pwd = '/root/TimeBox/' if os.name == 'posix' else ''
-sysTokens = {}
+
 lib = {
     "mon": "понедельник",
     "tue": "вторник",
@@ -56,6 +56,9 @@ def prefixWeek(deadline): return lib[deadline.strftime(
 
 app = Flask(__name__)
 
+@app.route('/favicon.ico', methods=['GET'])
+def icons():
+    return redirect(url_for('static',filename = 'favicon.ico'))
 
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])
@@ -234,19 +237,68 @@ def dashboard():
             "pattern": pattern,
             "userData": auth['accounts'][request.cookies.get('log')],
             "list": list(pattern),
-            "way": url_for("dashboard", page="changeLogin"),
+            "way": url_for("dashboard", page="formRead"),
+            "textMsg":""
         }
-        #data["userData"].pop("password")
-        data["userData"]['api']={"number":121}# testVariable
-        data["userData"]['statusTimeBox']=False# testVariable
+        if 'api' not in data['userData']: data["userData"]['api']={"number":0,"tokens":[],"timeToken":[]}# testVariable
+        if 'statusTimeBox' not in data['userData']: data["userData"]['statusTimeBox']=False# testVariable
 
         args = request.args.get('page')
 
+        if args == "formRead" and request.method == "POST":
+            forms = list(request.form)
+            trigger = True
+            typeInput = forms[0]
+
+            for i in forms:
+                if i in data["userData"]:
+                    if request.form[i] != data["userData"][i]:
+                        trigger = False
+                        break
+            if trigger:
+
+                if typeInput == "login":
+                    data['textMsg'] = "Готово!"
+                    auth['accounts'][request.cookies.get('log')]['login'] = request.form['login']
+                    writeStorage(json.dumps(auth, ensure_ascii=False),"auth.json")
+                elif typeInput == "password" and request.form["New1Password"] == request.form["New2Password"]:
+                    auth = json.loads(readStorage("auth.json"))
+                    if "timeToken" not in auth: auth["timeToken"] = []
+                    token = {
+                        "type": "password",
+                        "uid": data["userData"]['uid'],
+                        "time": int(datetime.datetime.today().timestamp()), # на час отличается - минусуй!
+                        "password": request.form["New1Password"],
+                        "hash": data["userData"]['hash'],
+                        "token": randint(100000,1000000)
+                    }
+
+                    for i in auth["timeToken"]:
+                        if i['uid'] == auth['accounts'][request.cookies.get('log')]['uid'] and i['type'] == "password":
+                            auth["timeToken"].remove(i)
+                    for i in auth['accounts'][request.cookies.get('log')]['api']['timeToken']:
+                        if 'password' in i:
+                            auth['accounts'][request.cookies.get('log')]['api']['timeToken'].remove(i)
+
+                    auth["timeToken"].append(token)
+                    auth['accounts'][request.cookies.get('log')]['api']['timeToken'].append(token)
+
+                    writeStorage(json.dumps(auth, ensure_ascii=False),"auth.json")
+
+                    data['textMsg'] = f"""Отправьте в личные сообщения <a href=\"https://vk.com/tboxo\">группы Tibox</a> 
+вот это - </div> <br><div id="title">Подтвердить {token['token']}"""
+
+            else:
+                data['textMsg']="К сожалению, вам отказано в доступе! Проверьте все ваши данные перед отправкой!"
+            data["textMsg"]=f"<p style=\"color:#ff2020;font-weight:bold;\">{data['textMsg']}</p>"
+
+        # нужные элементы
         if args:
-            if args in data['list'] : data['id'] = args
+            if args in data['list']: data['id'] = args
             else: data['id'] = "error"
         else: data['id'] = data['list'][0]
 
+        data["userData"].pop("password")
         if 'content' in data['pattern'][data['id']]:
             items = data['pattern'][data['id']]['content']['items']
             for item in items:
@@ -269,16 +321,19 @@ def dashboard():
                                     element=lastElement[1].split("/")
                                     part['value']=str(element[0] if info[lastElement[0]] else element[1])
                                 else: part['value']=str(info[lastElement[0]]) + array[1]
+
         info = data['list'].copy()
         for i in info:
             if data['pattern'][i]['hidden']: data['list'].remove(i)
-
-        print(json.dumps(data, ensure_ascii=False))
         return render_template('roomNew.html', data=data)
     else:
         res = make_response(redirect(url_for('signin')))
         res.set_cookie('log', '', max_age=0)
         return res
+
+@app.route('/dashboard/api', methods=['GET'])
+def api():
+    return "<h2>Позже появиться в 2.0 версии, а пока это лишь место костылей!</h2>"
 
 @app.route('/dashboard/file', methods=['GET', 'POST'])
 def file():
@@ -423,10 +478,6 @@ def hello():
         minus = (deadline + datetime.timedelta(days=-1)).date() != datetime.datetime.today().date()
         plus = (deadline + datetime.timedelta(days=1)).date() != datetime.datetime.today().date()
 
-        print(deadline.day)
-        print(deadline.month)
-        print(deadline.year)
-
         date = {
             "day": str(deadline.strftime("%d.%m.%Y")),
             "now": deadline.date() != datetime.datetime.today().date(),
@@ -495,12 +546,12 @@ def hello():
 def calendar():
     if request.args.get('time', ''):
         deadline = datetime.datetime.fromtimestamp(int(request.args.get('time', '')))
-        minus = (deadline + relativedelta(months=-1)).date() != datetime.datetime.today().date()
-        plus = (deadline + relativedelta(months=1)).date() != datetime.datetime.today().date()
-        nowDate = datetime.datetime.today()
+        today = datetime.datetime.today()
+        minus = (deadline + relativedelta(months=-1)).date() != today.date()
+        plus = (deadline + relativedelta(months=1)).date() != today.date()
         date = {
             "day": str(deadline.strftime("%m.%Y")),
-            "now": deadline.date() != datetime.datetime.today().date(),
+            "now": deadline.date() != today.date(),
             "name": "Календарь",
             "title": deadline.strftime("%B"),
             "-": (url_for('calendar', time=int((deadline + relativedelta(months=-1)) \
@@ -509,10 +560,10 @@ def calendar():
                                                .timestamp())) if plus else url_for('calendar')),
             "way": "?time=" + request.args.get('time', ''),
             'month': [],
-            'textTime': (f"Сегодня" if deadline.date() == datetime.datetime.today().date() else (f"В буд\
-ущем на {abs((deadline.date() - datetime.datetime.today().date()).days)} дней" if deadline > datetime.datetime \
+            'textTime': (f"Сегодня" if deadline.date() == today.date() else (f"В буд\
+ущем на {abs((deadline.date() - today.date()).days)} дней" if deadline > datetime.datetime \
                                                                                         .today() else f"В прошлом \
-на {abs((deadline.date() - datetime.datetime.today().date()).days)} дней"))
+на {abs((deadline.date() - today.date()).days)} дней"))
         }
 
         day = 0
@@ -524,11 +575,11 @@ def calendar():
                     date['month'][a].append({"on": False})
                 else:
                     day += 1
+                    trigger = (day == today.day and deadline.month == today.month and deadline.year == today.year)
                     date['month'][a].append({
                         "on": True,
                         "name": day,
-                        "color": (
-                            "background: rgb(201 112 227);color: #fff;" if day == nowDate.day and deadline.month == datetime.datetime.today().month and deadline.year == datetime.datetime.today().year else ""),
+                        "color": ("background: rgb(201 112 227);color: #fff;" if trigger else ""),
                         "link": url_for('hello', time=int(datetime.datetime(mainDate.year, mainDate.month, day) \
                                                           .timestamp()))})
 

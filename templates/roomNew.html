@@ -742,44 +742,49 @@
 						<p id="title">{{data['userData']['name']}} {{data['userData']['surname']}}</p>
 					</div>
 				{% endif %}
-					<form enctype="multipart/form-data" method="POST" action="{{data['way']}}"  id="half" style="width:100%;">
-						<input name="hash" type="hidden" value="{{data['userData']['hash']}}"/>
-						<input name="uid" type="hidden" value="{{data['userData']['uid']}}"/>
-						{% for i in data['pattern'][data['id']]['content']['items'] %}
-							{% set bulat = i['type'] %}
-							{% if bulat == 'title' %}
-								<div id="title">{{i['content']['value']}}</div>
-							{% endif %}
-							{% if bulat == 'button' %}
+				<form enctype="multipart/form-data" method="POST" action="{{data['way']}}"  id="half" style="width:100%;">
+					{% for i in data['pattern'][data['id']]['content']['items'] %}
+
+						{% set bulat = i['type'] %}
+						{% if bulat == 'title' %}
+							<div id="title" style="{{i['content']['style']}}">{{i['content']['value']}}</div>
+						{% endif %}
+						{% if bulat == 'button' %}
+							<div id="point">
 								{% if 'button' in i['content'] %}
 									<button type="submit" id="button" style="{{i['content']['button']['style']}}">{{i['content']['button']['value']}}</button>
 								{% elif 'a' in i['content'] %}
 									<a href="{{i['content']['a']['link']}}" id="button" style="{{i['content']['a']['style']}}">{{i['content']['a']['value']}}</a>
 								{% endif %}
-							{% endif %}
-							{% if bulat == 'text' %}
-								{% autoescape false %}
-									<div id="text" style="{{i['style']}}" style="width:100%;">{{i['content']['value']}}</div>
-								{% endautoescape %}
-							{% endif %}
-							{% if bulat == 'multiline' %}
-								<div id="point">
-									<div id="subtitle" style="width: auto;flex: none;">{{i['content']['name']}}:</div>
+							</div>
+						{% endif %}
+						{% if bulat == 'text' %}
+							{% autoescape false %}
+								<div id="text" style="{{i['content']['style']}}">{{i['content']['value']}}</div>
+							{% endautoescape %}
+						{% endif %}
+						{% if bulat == 'multiline' %}
+							<div id="point" style="{{i['content']['style']}}">
+								<div id="subtitle" style="width: auto;flex: none;">{{i['content']['name']}}:</div>
 
-									{% if "input" in i['content'] %}
-										<input id="input" name="i['content']['input']['name']" type="text" placeholder="{{i['content']['input']['placeholder']}}" value="{{i['content']['input']['value']}}" style="width:50%"/>
-									{% elif "text" in i['content'] %}
-										<div id="text" alt="{{i['content']['text']['placeholder']}}" style="width: auto;flex: none;">{{i['content']['text']['value']}}</div>
-									{% endif %}
+								{% if "input" in i['content'] %}
+									<input id="input" name="{{i['content']['input']['name']}}" type="{{i['content']['input']['type']}}" minlength="{{i['content']['input']['min']}}" maxlength="{{i['content']['input']['max']}}" required style="{{i['content']['input']['style']}}" placeholder="{{i['content']['input']['placeholder']}}" value="{{i['content']['input']['value']}}" style="width:50%"/>
+								{% elif "text" in i['content'] %}
+									<div id="text" alt="{{i['content']['text']['placeholder']}}" style="{{i['content']['a']['style']}}width: auto;flex: none;">{{i['content']['text']['value']}}</div>
+								{% endif %}
 
-									{% if 'button' in i['content'] %}
-										<button type="submit" id="button">{{i['content']['button']['value']}}</button>
-									{% elif 'a' in i['content'] %}
-										<a href="{{i['content']['a']['link']}}" id="button">{{i['content']['a']['value']}}</a>
-									{% endif %}
-								</div>
-							{% endif %}
-						{% endfor %}
+								{% if 'button' in i['content'] %}
+									<button type="submit" id="button">{{i['content']['button']['value']}}</button>
+								{% elif 'a' in i['content'] %}
+									<a href="{{i['content']['a']['link']}}" id="button">{{i['content']['a']['value']}}</a>
+								{% endif %}
+
+							</div>
+						{% endif %}
+					{% endfor %}
+
+					<input name="hash" type="hidden" value="{{data['userData']['hash']}}"/>
+					<input name="uid" type="hidden" value="{{data['userData']['uid']}}"/>
 				</form>
 			</div>
 			{% if 'links' in data %}
