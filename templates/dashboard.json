@@ -54,7 +54,7 @@
           "content": {
             "name": "API-Система",
             "text": {
-              "value": "-@userData|api|number<#> подключенных устройств",
+              "value": "-@numberApi<#> подключенных устройств",
               "placeholder": ""
             },
             "a": {

@@ -4,7 +4,7 @@
 from flask import render_template, Flask, redirect, url_for, request, send_from_directory, flash, make_response
 from random import randint
 from time import sleep
-import datetime, json, os, codecs, requests, asyncio
+import datetime, json, os, codecs, requests, asyncio, traceback
 
 pwd = '/root/TimeBox/' if os.name == 'posix' else ''
 
@@ -175,7 +175,7 @@ async def checkMsgs():
                 if a['uid'] == str(i['message']['from_id']):
                     trigger = a
                     account = auth['accounts'][auth["vkHash"][trigger["hash"]]]
-                    if trigger in account["api"]["timeToken"]:
+                    if trigger in account["timeToken"]:
                         if i['message']['date'] - trigger['time'] <= 3600\
                                 and trigger['type'] in account and trigger['type'] not in ["hash", "uid", "surname"]:
                             account[trigger['type']] = trigger[trigger['type']]
@@ -184,8 +184,8 @@ async def checkMsgs():
                             content['text'] = "Время ожидания истекло или вы неправильно ввели код!( \nПопытайтесь ещё раз провести процедуру заново!"
                 if trigger in auth['timeToken']:
                     auth['timeToken'].remove(trigger)
-                if trigger in account["api"]["timeToken"]:
-                    account["api"]["timeToken"].remove(trigger)
+                if trigger in account["timeToken"]:
+                    account["timeToken"].remove(trigger)
                 writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
                 if trigger != None: break
 
@@ -207,13 +207,17 @@ async def meetingFirst():
 
 async def body():
     while main.update(True):
-        print(main.info)
-        task1 = asyncio.create_task(
-            checkMsgs())
-        task2 = asyncio.create_task(
-            meetingFirst())
-        await task1
-        await task2
+        try:
+            print(main.info)
+            task1 = asyncio.create_task(
+                checkMsgs())
+            task2 = asyncio.create_task(
+                meetingFirst())
+            await task1
+            await task2
+        except Exception as e:
+            main.send(f"Ошибка в боте\n-------------------------------\n{e}\n**************\n{traceback.format_exc()}",
+                      [204987435])
         sleep(1)
 
 

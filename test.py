@@ -238,25 +238,27 @@ def dashboard():
             "userData": auth['accounts'][request.cookies.get('log')],
             "list": list(pattern),
             "way": url_for("dashboard", page="formRead"),
-            "textMsg":""
+            "textMsg": "",
+            "numberApi": len(auth['accounts'][request.cookies.get('log')]['tokens'])
         }
-        if 'api' not in data['userData']: data["userData"]['api']={"number":0,"tokens":[],"timeToken":[]}# testVariable
+        if 'tokens' not in data['userData']: data["userData"]["tokens"]=[]# testVariable
+        if 'timeToken' not in data['userData']: data["userData"]["timeToken"] = []  # testVariable
         if 'statusTimeBox' not in data['userData']: data["userData"]['statusTimeBox']=False# testVariable
 
         args = request.args.get('page')
 
         if args == "formRead" and request.method == "POST":
-            forms = list(request.form)
             trigger = True
-            typeInput = forms[0]
+            typeInput = list(request.form)[0]
+            print(typeInput)
 
-            for i in forms:
+            for i in list(request.form):
                 if i in data["userData"] and i != "login":
                     if request.form[i] != data["userData"][i]:
                         trigger = False
                         break
 
-            if trigger and typeInput in data["userData"] and typeInput not in ["hash", "uid", "surname"]:
+            if trigger and typeInput in data["userData"] and typeInput not in ["hash", "uid", "surname", "tokens", "timeToken"]:
                 auth = json.loads(readStorage("auth.json"))
                 if "timeToken" not in auth: auth["timeToken"] = []
                 token = {
@@ -275,12 +277,12 @@ def dashboard():
                     for i in auth["timeToken"]:
                         if i['uid'] == auth['accounts'][request.cookies.get('log')]['uid'] and i['type'] == typeInput:
                             auth["timeToken"].remove(i)
-                    for i in auth['accounts'][request.cookies.get('log')]['api']['timeToken']:
+                    for i in auth['accounts'][request.cookies.get('log')]['timeToken']:
                         if typeInput in i:
-                            auth['accounts'][request.cookies.get('log')]['api']['timeToken'].remove(i)
+                            auth['accounts'][request.cookies.get('log')]['timeToken'].remove(i)
 
                     auth["timeToken"].append(token)
-                    auth['accounts'][request.cookies.get('log')]['api']['timeToken'].append(token)
+                    auth['accounts'][request.cookies.get('log')]['timeToken'].append(token)
 
                     writeStorage(json.dumps(auth, ensure_ascii=False),"auth.json")
 
@@ -291,13 +293,15 @@ def dashboard():
                 data['textMsg']="К сожалению, вам отказано в доступе! Проверьте все ваши данные перед отправкой!"
             data["textMsg"]=f"<p style=\"color:#ff2020;font-weight:bold;\">{data['textMsg']}</p>"
 
-        # нужные элементы
+        # определение тега страницы для генерации из json
         if args:
             if args in data['list']: data['id'] = args
             else: data['id'] = "error"
         else: data['id'] = data['list'][0]
 
         data["userData"].pop("password")
+
+        # генератор данных из value в dashboard.json
         if 'content' in data['pattern'][data['id']]:
             items = data['pattern'][data['id']]['content']['items']
             for item in items:
