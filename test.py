@@ -53,6 +53,42 @@ def last_day_of_month(any_day):
 def prefixWeek(deadline): return lib[deadline.strftime(
     "%a").lower()] + f" ({'не чётная' if bool(deadline.isocalendar()[1] % 2) else 'чётная'})"
 
+def genTimeToken(typeInput: str, userData: dict, **params):
+    trigger = True
+    auth = json.loads(readStorage("auth.json"))
+    if "timeToken" not in auth: auth["timeToken"] = []
+    token = {
+        "type": typeInput,
+        "uid": userData['uid'],
+        "time": int(datetime.datetime.today().timestamp()),  # на час отличается - минусуй!
+        "hash": userData['hash'],
+        "token": randint(100000, 1000000)
+    }
+
+    if "@" in typeInput:
+        trigger = False
+        token = {**params,**token}
+
+    elif typeInput in userData and typeInput not in ["hash", "uid", "surname", "tokens", "timeToken"]:
+        if typeInput == "login" or \
+                typeInput == "password" and request.form["New1Password"] == request.form["New2Password"]:
+            trigger = False
+            token[typeInput] = request.form[typeInput]
+
+    if not trigger:
+        for i in auth["timeToken"]:
+            if i['uid'] == auth['accounts'][request.cookies.get('log')]['uid'] and i['type'] == typeInput:
+                auth["timeToken"].remove(i)
+        for i in auth['accounts'][request.cookies.get('log')]['timeToken']:
+            if typeInput in i:
+                auth['accounts'][request.cookies.get('log')]['timeToken'].remove(i)
+
+        auth["timeToken"].append(token)
+        auth['accounts'][request.cookies.get('log')]['timeToken'].append(token)
+
+        writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
+
+    return not trigger
 
 app = Flask(__name__)
 
@@ -110,7 +146,7 @@ def signin():
             "vkHash": {},
             "accounts": {}
         }
-        addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
+        # addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
@@ -241,9 +277,9 @@ def dashboard():
             "textMsg": "",
             "numberApi": len(auth['accounts'][request.cookies.get('log')]['tokens'])
         }
-        if 'tokens' not in data['userData']: data["userData"]["tokens"]=[]# testVariable
+        if 'tokens' not in data['userData']: data["userData"]["tokens"]=[] # testVariable
         if 'timeToken' not in data['userData']: data["userData"]["timeToken"] = []  # testVariable
-        if 'statusTimeBox' not in data['userData']: data["userData"]['statusTimeBox']=False# testVariable
+        if 'statusTimeBox' not in data['userData']: data["userData"]['statusTimeBox']=False # testVariable
 
         args = request.args.get('page')
 
@@ -252,39 +288,17 @@ def dashboard():
             typeInput = list(request.form)[0]
             print(typeInput)
 
+            # Разбираем всё, что пришло и проверяем основной массив данных с профилем пользователя!
             for i in list(request.form):
-                if i in data["userData"] and i != "login":
+                # в основном мы провееряем здесь hash, uid, но в редких случаях мы можем добавить!
+                if i in data["userData"] and i not in ["login"]:
                     if request.form[i] != data["userData"][i]:
+                        # неправильные данные - сбрасываем процесс!
                         trigger = False
                         break
 
-            if trigger and typeInput in data["userData"] and typeInput not in ["hash", "uid", "surname", "tokens", "timeToken"]:
-                auth = json.loads(readStorage("auth.json"))
-                if "timeToken" not in auth: auth["timeToken"] = []
-                token = {
-                    "type": typeInput,
-                    "uid": data["userData"]['uid'],
-                    "time": int(datetime.datetime.today().timestamp()),  # на час отличается - минусуй!
-                    "hash": data["userData"]['hash'],
-                    "token": randint(100000, 1000000)
-                }
+            if trigger and genTimeToken(typeInput, data["userData"], **params):
 
-                if typeInput == "login" or typeInput == "password" and request.form["New1Password"] == request.form["New2Password"]:
-                    trigger = False
-                    token[typeInput] = request.form[typeInput]
-
-                if not trigger:
-                    for i in auth["timeToken"]:
-                        if i['uid'] == auth['accounts'][request.cookies.get('log')]['uid'] and i['type'] == typeInput:
-                            auth["timeToken"].remove(i)
-                    for i in auth['accounts'][request.cookies.get('log')]['timeToken']:
-                        if typeInput in i:
-                            auth['accounts'][request.cookies.get('log')]['timeToken'].remove(i)
-
-                    auth["timeToken"].append(token)
-                    auth['accounts'][request.cookies.get('log')]['timeToken'].append(token)
-
-                    writeStorage(json.dumps(auth, ensure_ascii=False),"auth.json")
 
                     data['textMsg'] = f"""Отправьте в личные сообщения <a href=\"https://vk.com/tboxo\">группы Tibox</a> 
 вот это - </div> <br><div id="title">Подтвердить {token['token']}"""
@@ -325,9 +339,11 @@ def dashboard():
                                     part['value']=str(element[0] if info[lastElement[0]] else element[1])
                                 else: part['value']=str(info[lastElement[0]]) + array[1]
 
+        # генерируем пункты меню, убирая те, которые скрыты!
         info = data['list'].copy()
         for i in info:
             if data['pattern'][i]['hidden']: data['list'].remove(i)
+
         return render_template('roomNew.html', data=data)
     else:
         res = make_response(redirect(url_for('signin')))
@@ -337,6 +353,44 @@ def dashboard():
 @app.route('/dashboard/api', methods=['GET'])
 def api():
     return "<h2>Позже появиться в 2.0 версии, а пока это лишь место костылей!</h2>"
+
+@app.route('/dashboard/timebox', methods=['GET'])
+def applicationDonwload():
+    try:
+        auth = json.loads(readStorage('auth.json'))
+    except Exception as e:
+        print(e)
+        return '<h1>Error UNDEFINED</h1><hr>\
+        <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
+
+    pattern = json.loads(readStorage("templates/dashboard.json"))
+
+    if request.cookies.get('log') in auth['accounts']:
+        data = {
+            "pattern": pattern,
+            "userData": auth['accounts'][request.cookies.get('log')],
+            "list": list(pattern),
+            "way": url_for("dashboard", page="formRead"),
+            "textMsg": "",
+            "numberApi": len(auth['accounts'][request.cookies.get('log')]['tokens'])
+        }
+        if 'tokens' not in data['userData']: data["userData"]["tokens"] = []  # testVariable
+        if 'timeToken' not in data['userData']: data["userData"]["timeToken"] = []  # testVariable
+        if 'statusTimeBox' not in data['userData']: data["userData"]['statusTimeBox'] = False  # testVariable
+
+        if not auth['accounts'][request.cookies.get('log')]['statusTimeBox']: data['id'] ="requestTimeBox"
+
+        # генерируем пункты меню, убирая те, которые скрыты!
+        info = data['list'].copy()
+        for i in info:
+            if data['pattern'][i]['hidden']: data['list'].remove(i)
+
+        return render_template('roomNew.html', data=data)
+
+    else:
+        res = make_response(redirect(url_for('signin')))
+        res.set_cookie('log', '', max_age=0)
+        return res
 
 @app.route('/dashboard/file', methods=['GET', 'POST'])
 def file():

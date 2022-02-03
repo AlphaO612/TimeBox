@@ -176,16 +176,23 @@ async def checkMsgs():
                     trigger = a
                     account = auth['accounts'][auth["vkHash"][trigger["hash"]]]
                     if trigger in account["timeToken"]:
-                        if i['message']['date'] - trigger['time'] <= 3600\
-                                and trigger['type'] in account and trigger['type'] not in ["hash", "uid", "surname"]:
-                            account[trigger['type']] = trigger[trigger['type']]
-                            content['text'] = f"Всё прошло успешно, изменения приняты!\n Теперь ваш {trigger['type']} - {trigger[trigger['type']]}"
+                        if i['message']['date'] - trigger['time'] <= 3600:
+                            if trigger['type'] in account and trigger['type'] not in ["hash", "uid", "surname"]:
+                                account[trigger['type']] = trigger[trigger['type']]
+                                content['text'] = f"Всё прошло успешно, изменения приняты!\n Теперь ваш {trigger['type']} - {trigger[trigger['type']]}"
+
+                            elif "@call#" in trigger['type']:
+                                if trigger['type'].split()[0] == ""
+
                         else:
                             content['text'] = "Время ожидания истекло или вы неправильно ввели код!( \nПопытайтесь ещё раз провести процедуру заново!"
+
                 if trigger in auth['timeToken']:
                     auth['timeToken'].remove(trigger)
+
                 if trigger in account["timeToken"]:
                     account["timeToken"].remove(trigger)
+
                 writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
                 if trigger != None: break
 
@@ -194,7 +201,6 @@ async def checkMsgs():
         else:
             content['text'] = "Прости, но видно команда не правильно написана!"
 
-
         print(main.send(content['text'],
                   [i['message']['from_id']],
                   reply_to=i['message']['id'],
@@ -202,7 +208,7 @@ async def checkMsgs():
 
 async def meetingFirst():
     for i in main.readTypeEvents("message_allow"):
-        main.send("Привет!\n Я - бот TimeBox, созданный для помощи в работе с сайтом!", [i['user_id']],
+        main.send("Привет!\nЯ - бот TimeBox, созданный для помощи в работе с сайтом!", [i['user_id']],
                   keyboard=json.dumps(buttons['help'], ensure_ascii=False))
 
 async def body():
@@ -219,6 +225,5 @@ async def body():
             main.send(f"Ошибка в боте\n-------------------------------\n{e}\n**************\n{traceback.format_exc()}",
                       [204987435])
         sleep(1)
-
 
 asyncio.run(body())

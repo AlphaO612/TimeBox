@@ -9,6 +9,7 @@
       "items": [
         {
           "type": "multiline",
+          "arguments": "required",
           "content": {
             "name": "Логин",
             "input": {
@@ -72,8 +73,8 @@
               "placeholder": ""
             },
             "a": {
-              "value": "-@userData|statusTimeBox->Cкачать/Подать<#>",
-              "link": ""
+              "value": "-@userData|statusTimeBox->Открыть панель/Подать<#>",
+              "link": "/dashboard/timebox"
             }
           }
         },
@@ -141,6 +142,7 @@
       "items": [
         {
           "type": "multiline",
+          "arguments": "required",
           "content": {
             "name": "Старый пароль",
             "input": {
@@ -155,6 +157,7 @@
         },
         {
           "type": "multiline",
+          "arguments": "required",
           "content": {
             "name": "Новый пароль",
             "input": {
@@ -169,6 +172,7 @@
         },
         {
           "type": "multiline",
+          "arguments": "required",
           "content": {
             "name": "Повторите пароль",
             "input": {
@@ -203,6 +207,144 @@
           "type": "text",
           "content": {
             "value": "<div id=\"title\" style=\"color:#ff2020;\">Прости, но такой страницы нет!</div></div><div id=\"subtitle\">Выберите в меню пункт!"
+          }
+        }
+      ]
+    }
+  },
+  "requestTimeBox": {
+    "id": "TimeBox",
+    "name": "Запрос на доступ к модерации сайта!",
+    "hidden": true,
+    "link": "/dashboard/TimeBox",
+    "content": {
+      "half": false,
+      "items": [
+        {
+          "type": "multiline",
+          "arguments": "required",
+          "content": {
+            "name": "Номер группы",
+            "input": {
+              "name": "groupNum",
+              "value": "",
+              "type": "number",
+              "placeholder": "110",
+              "min": 2,
+              "max": 10
+            }
+          }
+        },
+        {
+          "type": "multiline",
+          "arguments": "required",
+          "content": {
+            "name": "Название института",
+            "input": {
+              "name": "institute",
+              "value": "",
+              "type": "text",
+              "placeholder": "институт математики и информатики",
+              "min": 5,
+              "max": 100
+            }
+          }
+        },
+        {
+          "type": "multiline",
+          "arguments": "required",
+          "content": {
+            "name": "Номер курса",
+            "input": {
+              "name": "lvl",
+              "value": "",
+              "type": "number",
+              "placeholder": "1",
+              "min": 1,
+              "max": 5
+            }
+          }
+        },
+        {
+          "type": "subtitle",
+          "arguments": "required",
+          "content": {
+            "value": "Какие системы вы имеете",
+            "style": "align-items:flex-start;"
+          }
+        },
+        {
+          "type": "checkbox",
+          "arguments": "required",
+          "content": {
+            "type": "radio",
+            "name": "system",
+            "boxes": [
+              {
+                "id": "win10",
+                "text": "Windows 10"
+              },
+              {
+                "id": "win11",
+                "text": "Windows 10"
+              },
+              {
+                "id": "debian",
+                "text": "Debian"
+              },
+              {
+                "id": "ubuntu",
+                "text": "Ubuntu"
+              },
+              {
+                "id": "undefined_linux",
+                "text": "Other linux"
+              },
+              {
+                "id": "android",
+                "text": "Android"
+              },
+              {
+                "id": "other",
+                "text": "Другое"
+              }
+            ],
+            "style": "align-items:flex-start;"
+          }
+        },
+        {
+          "type": "multiline",
+          "content": {
+            "name": "Название Другой ОС",
+            "input": {
+              "name": "systemName",
+              "value": "",
+              "type": "text",
+              "placeholder": "",
+              "max": 30
+            }
+          }
+        },
+        {
+          "type": "multiline",
+          "arguments": "required",
+          "content": {
+            "name": "Ваша электроная почта",
+            "input": {
+              "name": "email",
+              "value": "",
+              "type": "email",
+              "placeholder": "email@exam.ple",
+              "min": 5
+            }
+          }
+        },
+        {
+          "type": "button",
+          "content": {
+            "button": {
+              "value": "Отправить запрос"
+            }
           }
         }
       ]
