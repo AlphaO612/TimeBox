@@ -45,6 +45,9 @@ def readStorage(name):
     return set
 
 
+mainData = json.loads(readStorage("auth.json"))
+
+
 def last_day_of_month(any_day):
     next_month = any_day.replace(day=28) + datetime.timedelta(days=4)
     return (next_month - datetime.timedelta(days=next_month.day)).day
@@ -55,15 +58,7 @@ def prefixWeek(deadline): return lib[deadline.strftime(
 
 
 def genTimeToken(typeInput: str, userData: dict, params: dict):
-    trigger = True
     auth = json.loads(readStorage("auth.json"))
-
-    if 'tokens' not in auth['accounts'][request.cookies.get('log')]:
-        auth['accounts'][request.cookies.get('log')]["tokens"] = []  # testVariable
-    if 'timeToken' not in auth['accounts'][request.cookies.get('log')]:
-        auth['accounts'][request.cookies.get('log')]["timeToken"] = []  # testVariable
-    if 'statusTimeBox' not in auth['accounts'][request.cookies.get('log')]:
-        auth['accounts'][request.cookies.get('log')]['statusTimeBox'] = False  # testVariable
 
     if "timeToken" not in auth: auth["timeToken"] = []
     token = {
@@ -126,11 +121,19 @@ def extractInfo(data):
 
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = pwd + "downloadFiles"
 
 
 @app.route('/favicon.ico', methods=['GET'])
 def icons():
     return redirect(url_for('static', filename='favicon.ico'))
+
+
+@app.route("/uploads/<path:name>")
+def download_file(name):
+    return send_from_directory(
+        app.config['UPLOAD_FOLDER'], name, as_attachment=True
+    )
 
 
 @app.route('/', methods=['GET'])
@@ -140,8 +143,6 @@ def index():
     today = datetime.date.today()
     moment = datetime.datetime.now().time()
     deadline = datetime.datetime.combine(today, moment)
-    print(deadline)
-    timecode = int(deadline.timestamp())
 
     date = {
         "day": str(deadline.strftime("%d.%m.%Y")),
@@ -184,11 +185,15 @@ def signin():
             "vkHash": {},
             "accounts": {}
         }
-        # addStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
     if request.cookies.get('log') in auth['accounts']:
+        timeData = auth['settings']["patterns"]['user'].copy()
+        timeData.update(auth['accounts'][request.cookies.get('log')])
+        auth['accounts'][request.cookies.get('log')] = timeData
+        del timeData
+        writeStorage(json.dumps(auth,ensure_ascii=False), "auth.json")
         return redirect(url_for('check'))
 
     date = {
@@ -196,8 +201,6 @@ def signin():
         "way": url_for('check'),
         "error": ""
     }
-    # res = make_response("Setting a cookie")
-    # res.set_cookie('token', '', max_age=30)
 
     if request.args.get('error', ''):
         if request.args.get('error', '') == 'LoginWrong': date['error'] = 'Неверный пароль или логин'
@@ -270,7 +273,8 @@ def signup():
         idl = str(uuid4())
         while (idl in auth['accounts']): idl = str(uuid4())
         auth['vkHash'][request.args.get('hash', '')] = idl
-        auth['accounts'][idl] = {
+        timeData = mainData['settings']['patterns']['user']
+        timeData.update({
             "img": request.args.get('photo', '').replace('amp;', '&'),
             "name": request.args.get('name', ''),
             "surname": request.args.get('surname', ''),
@@ -279,7 +283,8 @@ def signup():
             "login": request.form['login'],
             "password": request.form['password'],
             "id": idl
-        }
+        })
+        auth['accounts'][idl] = timeData
 
         writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
         res = make_response(redirect(url_for('dashboard')))
@@ -317,19 +322,9 @@ def verification():
     }
 
     if request.cookies.get('log') in auth['accounts']:
-        if 'tokens' not in auth['accounts'][request.cookies.get('log')]:
-            auth['accounts'][request.cookies.get('log')]["tokens"] = []  # testVariable
-        if 'timeToken' not in auth['accounts'][request.cookies.get('log')]:
-            auth['accounts'][request.cookies.get('log')]["timeToken"] = []  # testVariable
-        if 'statusTimeBox' not in auth['accounts'][request.cookies.get('log')]:
-            auth['accounts'][request.cookies.get('log')]['statusTimeBox'] = False  # testVariable
 
         data['userData'] = auth['accounts'][request.cookies.get('log')]
         data['numberApi'] = len(auth['accounts'][request.cookies.get('log')]['tokens'])
-
-        if 'tokens' not in data['userData']: data["userData"]["tokens"] = []  # testVariable
-        if 'timeToken' not in data['userData']: data["userData"]["timeToken"] = []  # testVariable
-        if 'statusTimeBox' not in data['userData']: data["userData"]['statusTimeBox'] = False  # testVariable
 
         data['textMsg'] = "К сожалению, вам отказано в доступе! Проверьте все ваши данные перед отправкой!"
 
@@ -339,8 +334,10 @@ def verification():
             # Разбираем всё, что пришло и проверяем основной массив данных с профилем пользователя!
             for i in list(request.form):
                 # в основном мы провееряем здесь hash, uid, но в редких случаях мы можем добавить!
-                if i in data["userData"] and i not in ["login"]:
+                if i in data["userData"] and i not in ["login", "groupNum", "institute","lvl"]:
                     if request.form[i] != data["userData"][i]:
+                        print(
+                            f"{i} - {request.form[i]} - {data['userData'][i]} = {request.form[i] != data['userData'][i]}")
                         # неправильные данные - сбрасываем процесс!
                         typeInput = "off"
                         break
@@ -352,11 +349,16 @@ def verification():
                     genTimeToken(typeInput, data["userData"], params=params)
                     data['textMsg'] = f"Всё отправлено!"
                 elif (typeInput in data["userData"]
-                      and typeInput not in ["hash", "uid", "surname", "tokens", "timeToken", "statusTimeBox"]):
-                        if typeInput == "password" and request.form["New1Password"] == request.form["New2Password"]\
-                                or typeInput == "login":
-                            token = genTimeToken(typeInput, data["userData"], params={typeInput: request.form[typeInput]})
-                            data['textMsg'] = f"""Отправьте в личные сообщения <a href=\"https://vk.com/tboxo\">группы Tibox</a> 
+                      and typeInput not in ["hash", "uid", "surname", "tokens", "timeToken", "statusTimeBox",
+                                            "infoTimeBox"])\
+                        and ((typeInput == "password" and request.form["New1Password"] == request.form["New2Password"]
+                             or typeInput == "login") and request.form[typeInput]):
+                    token = genTimeToken(typeInput,
+                                         data["userData"],
+                                         params={typeInput: (
+                                             request.form[typeInput] if typeInput != "password" else request.form[
+                                                 "New1Password"])})
+                    data['textMsg'] = f"""Отправьте в личные сообщения <a href=\"https://vk.com/tboxo\">группы Tibox</a> 
 вот это - </div> <br><div id="title">Подтвердить {token}"""
 
         data["textMsg"] = f"<p style=\"color:#ff2020;font-weight:bold;\">{data['textMsg']}</p>"
@@ -376,12 +378,22 @@ def dashboard():
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
     if request.cookies.get('log') in auth['accounts']:
-        if 'tokens' not in auth['accounts'][request.cookies.get('log')]:
-            auth['accounts'][request.cookies.get('log')]["tokens"] = []  # testVariable
-        if 'timeToken' not in auth['accounts'][request.cookies.get('log')]:
-            auth['accounts'][request.cookies.get('log')]["timeToken"] = []  # testVariable
-        if 'statusTimeBox' not in auth['accounts'][request.cookies.get('log')]:
-            auth['accounts'][request.cookies.get('log')]['statusTimeBox'] = False  # testVariable
+        if auth['accounts'][request.cookies.get('log')] == None:
+            auth['accounts'].pop(request.cookies.get('log'))
+            for i in auth['vkHash']:
+                if auth['vkHash'][i] == request.cookies.get('log'):
+                    auth['vkHash'].pop(i)
+                    writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
+                    res = make_response(redirect(url_for('signin')))
+                    res.set_cookie('log', '', max_age=0)
+                    return res
+                
+        timeData = auth['settings']["patterns"]['user'].copy()
+        timeData.update(auth['accounts'][request.cookies.get('log')])
+        auth['accounts'][request.cookies.get('log')] = timeData.copy()
+        del timeData
+        writeStorage(json.dumps(auth,ensure_ascii=False), "auth.json")
+
         data = {
             "pattern": json.loads(readStorage("templates/dashboard.json")),
             "userData": auth['accounts'][request.cookies.get('log')],
@@ -390,9 +402,6 @@ def dashboard():
             "textMsg": "",
             "numberApi": len(auth['accounts'][request.cookies.get('log')]['tokens'])
         }
-        if 'tokens' not in data['userData']: data["userData"]["tokens"] = []  # testVariable
-        if 'timeToken' not in data['userData']: data["userData"]["timeToken"] = []  # testVariable
-        if 'statusTimeBox' not in data['userData']: data["userData"]['statusTimeBox'] = False  # testVariable
 
         args = request.args.get('page')
 
@@ -438,12 +447,6 @@ def applicationDonwload():
         <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
     if request.cookies.get('log') in auth['accounts']:
-        if 'tokens' not in auth['accounts'][request.cookies.get('log')]:
-            auth['accounts'][request.cookies.get('log')]["tokens"] = []  # testVariable
-        if 'timeToken' not in auth['accounts'][request.cookies.get('log')]:
-            auth['accounts'][request.cookies.get('log')]["timeToken"] = []  # testVariable
-        if 'statusTimeBox' not in auth['accounts'][request.cookies.get('log')]:
-            auth['accounts'][request.cookies.get('log')]['statusTimeBox'] = False  # testVariable
         data = {
             "pattern": json.loads(readStorage("templates/dashboard.json")),
             "userData": auth['accounts'][request.cookies.get('log')],
@@ -459,11 +462,11 @@ def applicationDonwload():
             data['id'] = "formRead"
             data['textMsg'] = "Привет!</div><div id = \"text\" style=\"display:contents;\"> " \
                               f"<div>Скачать вы можете программу с " \
-                              f"<a href=\"{url_for('static', filename='TimeBox.exe')}\" download>сервера</a> или " \
-                              "<a href=\"https://raw.githubusercontent.com/AlphaO612/TimeBox/main/TimeBox.exe\" " \
+                              f"<a href=\"upload/TimeBox.exe\" download>сервера</a> или " \
+                              "<a href=\"https://raw.githubusercontent.com/AlphaO612/TimeBox/main/downloadFiles/TimeBox.exe\" " \
                               "download> GitHub-а</a>!</div>" \
                               "<div> Мануал, как работать с программой, ты можешь скачать с " \
-                              f"<a href=\"{url_for('static', filename='TimeBox.pdf')}\" download>сервера</a></div>" \
+                              f"<a href=\"upload/TimeBox.pdf\" download>сервера</a></div>" \
                               f"<div> А вот загружать вам надо вот <a href=\"{url_for('file')}\">ЗДЕСЬ</a>!</div>"
 
         # генерируем пункты меню, убирая те, которые скрыты!
@@ -510,11 +513,16 @@ def file():
                     except Exception as e:
                         return f'<p><h1 style="color:red;">Check your file</h1></p><p>{e} - {str(e)}</p><p><a href="{request.url}">Back</a></p>'
                     else:
-                        writeStorage(readStorage('solo.json'),
-                                     f'historyTime/'
-                                     f'{auth["accounts"][request.cookies.get("log")]["infoTimeBox"]["token"]}_'
-                                     f'{int(datetime.datetime.today().timestamp())}.json')
+                        partOfHistory = {
+                            "description":"",
+                            "date":int(datetime.datetime.today().timestamp()),
+                            "id_file":f'{auth["accounts"][request.cookies.get("log")]["infoTimeBox"]["token"]}_'\
+                               f'{int(datetime.datetime.today().timestamp())}.json'
+                        }
+                        auth['accounts'][request.cookies.get('log')]['infoTimeBox']['history'].append(partOfHistory)
+                        writeStorage(oldfile,f'historyTime/{partOfHistory["id_file"]}')
                         writeStorage(json.dumps(data, ensure_ascii=False), 'solo.json')
+                        del data, oldfile, partOfHistory, file
                         return f'<p><h1>fine! you loaded it!</h1></p<p><a href="{url_for("index")}">Back</a></p>'
                 return redirect(url_for('index'))
         else:

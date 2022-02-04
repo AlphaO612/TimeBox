@@ -193,7 +193,7 @@ async def checkCalls():
             content['users'] = [author_id]
             content['text'] = "Сообщение вызова\n" + "_" * 10
             for i in list(block):
-                content['text'] += f"\n{i} - {block[i] if i != 'date' else block[i]}"
+                content['text'] += f"\n{i} - {block[i] if i != 'date' else datetime.datetime.fromtimestamp(block[i]).strftime('%A, %d. %B %Y %I:%M%p')}"
             print(main.send(content['text'],
                             content['users']))
             block['checkBot'] = int(datetime.datetime.today().timestamp())
@@ -258,21 +258,40 @@ async def checkMsgs():
                         main.send(f"Ваш запрос был одобрен!\nКомментарий модератора: {command[3]}", [block['uid']])
                         if block['type'].split("#")[1] == "requestmod":
                             auth['accounts'][auth['vkHash'][block['hash']]]['statusTimeBox'] = True
-                            if "infoTimeBox" not in account:
-                                auth['accounts'][auth['vkHash'][block['hash']]]['infoTimeBox'] = {
-                                    "token": str(uuid4()),
-                                    "rep": 0,
-                                    "group": block['groupNum']
-                                }
-                                if block in auth['timeToken']:
-                                    auth['timeToken'].remove(block)
-                                block.pop("checkBot")
-                                if block in account["timeToken"]:
-                                    auth['accounts'][auth['vkHash'][block['hash']]]["timeToken"].remove(block)
-                                writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
 
-                            content['text'] = f"Отправлено и принят запрос"
+                            if block in auth['timeToken']:
+                                auth['timeToken'].remove(block)
+                            for a in auth['accounts'][auth['vkHash'][block['hash']]]["timeToken"]:
+                                if block["type"] == a['type'].lower():
+                                    auth['accounts'][auth['vkHash'][block['hash']]]["timeToken"].remove(a)
+                            writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
 
+                            content['text'] = f"Отправлен и принят запрос!"
+
+            elif command[0] == "отклонить" and len(command) > 3:
+                for block in auth["timeToken"]:
+                    block['type'] = block['type'].lower()
+                    print(f"{block['type'].split('#')[1]}")
+                    if command[1] == str(block['uid']) and command[2] == block['type']:
+                        account = auth['accounts'][auth['vkHash'][block['hash']]]
+                        main.send(f"Ваш запрос был отклонён!\nКомментарий модератора: {command[3]}", [block['uid']])
+                        if block['type'].split("#")[1] == "requestmod":
+                            auth['accounts'][auth['vkHash'][block['hash']]]['statusTimeBox'] = False
+                            if block in auth['timeToken']:
+                                auth['timeToken'].remove(block)
+                            for a in auth['accounts'][auth['vkHash'][block['hash']]]["timeToken"]:
+                                if block["type"] == a['type'].lower():
+                                    auth['accounts'][auth['vkHash'][block['hash']]]["timeToken"].remove(a)
+                            writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
+
+                            content['text'] = f"Отправлен и принят запрос!"
+
+            elif command[0] == "пользователь" and len(command) > 2:
+                for user in auth['accounts']:
+                    if auth['accounts'][user]['hash'] == command[1] or auth['accounts'][user]['uid'] == command[1]:
+                        content['text'] = f"Информация о {command[1]}:\n"
+                        for a in auth['accounts'][user]:
+                            content['text'] += f"{a} - {str(auth['accounts'][user][a])}\n"
 
         content['buttons'] = (command[0] if command[0] in buttons else "помощь")
         content['reply_id'] = i['message']['id']
