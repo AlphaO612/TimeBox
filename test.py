@@ -53,9 +53,18 @@ def last_day_of_month(any_day):
 def prefixWeek(deadline): return lib[deadline.strftime(
     "%a").lower()] + f" ({'не чётная' if bool(deadline.isocalendar()[1] % 2) else 'чётная'})"
 
-def genTimeToken(typeInput: str, userData: dict, **params):
+
+def genTimeToken(typeInput: str, userData: dict, params: dict):
     trigger = True
     auth = json.loads(readStorage("auth.json"))
+
+    if 'tokens' not in auth['accounts'][request.cookies.get('log')]:
+        auth['accounts'][request.cookies.get('log')]["tokens"] = []  # testVariable
+    if 'timeToken' not in auth['accounts'][request.cookies.get('log')]:
+        auth['accounts'][request.cookies.get('log')]["timeToken"] = []  # testVariable
+    if 'statusTimeBox' not in auth['accounts'][request.cookies.get('log')]:
+        auth['accounts'][request.cookies.get('log')]['statusTimeBox'] = False  # testVariable
+
     if "timeToken" not in auth: auth["timeToken"] = []
     token = {
         "type": typeInput,
@@ -65,36 +74,64 @@ def genTimeToken(typeInput: str, userData: dict, **params):
         "token": randint(100000, 1000000)
     }
 
-    if "@" in typeInput:
-        trigger = False
-        token = {**params,**token}
+    token = {**params, **token}
 
-    elif typeInput in userData and typeInput not in ["hash", "uid", "surname", "tokens", "timeToken"]:
-        if typeInput == "login" or \
-                typeInput == "password" and request.form["New1Password"] == request.form["New2Password"]:
-            trigger = False
-            token[typeInput] = request.form[typeInput]
+    for i in auth["timeToken"]:
+        if i['uid'] == auth['accounts'][request.cookies.get('log')]['uid'] and i['type'] == typeInput:
+            auth["timeToken"].remove(i)
+    for i in auth['accounts'][request.cookies.get('log')]['timeToken']:
+        if typeInput in i:
+            auth['accounts'][request.cookies.get('log')]['timeToken'].remove(i)
 
-    if not trigger:
-        for i in auth["timeToken"]:
-            if i['uid'] == auth['accounts'][request.cookies.get('log')]['uid'] and i['type'] == typeInput:
-                auth["timeToken"].remove(i)
-        for i in auth['accounts'][request.cookies.get('log')]['timeToken']:
-            if typeInput in i:
-                auth['accounts'][request.cookies.get('log')]['timeToken'].remove(i)
+    auth["timeToken"].append(token)
+    auth['accounts'][request.cookies.get('log')]['timeToken'].append(token)
 
-        auth["timeToken"].append(token)
-        auth['accounts'][request.cookies.get('log')]['timeToken'].append(token)
+    writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
+    return token['token']
 
-        writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
 
-    return not trigger
+def extractInfo(data):
+    if 'content' in data['pattern'][data['id']]:
+        items = data['pattern'][data['id']]['content']['items']
+        for item in items:
+            for line in list(item['content']):
+                if line != "name":
+                    try:
+                        if type(item['content'][line]) == dict:
+                            array = item['content'][line]['value']
+                        else:
+                            array = item['content']['value']
+                    except:
+                        pass
+                    else:
+                        array = array.split("<#>")
+                        if "-@" in array[0] and len(array) > 1:
+                            array[0] = array[0].replace("-@", "")
+                            path = array[0].split("|")
+                            lastElement = path[len(path) - 1].split("->")
+                            try:
+                                info = data
+                                for i in range(len(path) - 1): info = info[path[i]]
+                            except:
+                                raise RuntimeError(f'Неправильно указали путь, либо его не существует - {str(path)}')
+                            else:
+                                part = (
+                                    item['content'][line] if type(item['content'][line]) == dict else item['content'])
+                                if len(lastElement) > 1:
+                                    element = lastElement[1].split("/")
+                                    part['value'] = str(element[0] if info[lastElement[0]] else element[1])
+                                else:
+                                    part['value'] = str(info[lastElement[0]]) + array[1]
+    return data
+
 
 app = Flask(__name__)
 
+
 @app.route('/favicon.ico', methods=['GET'])
 def icons():
-    return redirect(url_for('static',filename = 'favicon.ico'))
+    return redirect(url_for('static', filename='favicon.ico'))
+
 
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])
@@ -136,6 +173,7 @@ def index():
     '''
     return render_template('index.html', data=date)
 
+
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     try:
@@ -166,6 +204,7 @@ def signin():
 
     return render_template('signin.html', data=date)
 
+
 @app.route('/check', methods=['GET', 'POST'])
 def check():
     try:
@@ -191,6 +230,9 @@ def check():
         return res
 
     elif request.cookies.get('log') in auth['accounts']:
+        if request.args.get('page') == "deleteAll":
+            auth['vkHash'].pop(auth['accounts'].pop(request.cookies.get('log'))['hash'])
+        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
         return redirect(url_for('dashboard'))
 
     elif request.method == 'POST':
@@ -214,6 +256,7 @@ def check():
                                 surname=request.args.get('last_name', ''),
                                 photo=str(request.args.get('photo', ''))))
 
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     try:
@@ -235,7 +278,7 @@ def signup():
             "uid": request.args.get('uid', ''),
             "login": request.form['login'],
             "password": request.form['password'],
-            "id":idl
+            "id": idl
         }
 
         writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
@@ -256,6 +299,73 @@ def signup():
         }
         return render_template('signup.html', data=data)
 
+
+@app.route('/verification', methods=['GET', 'POST'])
+def verification():
+    try:
+        auth = json.loads(readStorage('auth.json'))
+    except Exception as e:
+        print(e)
+        return '<h1>Error UNDEFINED</h1><hr>\
+    <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
+
+    data = {
+        "pattern": json.loads(readStorage("templates/dashboard.json")),
+        "list": [],
+        # "profile": True,
+        "textMsg": ""
+    }
+
+    if request.cookies.get('log') in auth['accounts']:
+        if 'tokens' not in auth['accounts'][request.cookies.get('log')]:
+            auth['accounts'][request.cookies.get('log')]["tokens"] = []  # testVariable
+        if 'timeToken' not in auth['accounts'][request.cookies.get('log')]:
+            auth['accounts'][request.cookies.get('log')]["timeToken"] = []  # testVariable
+        if 'statusTimeBox' not in auth['accounts'][request.cookies.get('log')]:
+            auth['accounts'][request.cookies.get('log')]['statusTimeBox'] = False  # testVariable
+
+        data['userData'] = auth['accounts'][request.cookies.get('log')]
+        data['numberApi'] = len(auth['accounts'][request.cookies.get('log')]['tokens'])
+
+        if 'tokens' not in data['userData']: data["userData"]["tokens"] = []  # testVariable
+        if 'timeToken' not in data['userData']: data["userData"]["timeToken"] = []  # testVariable
+        if 'statusTimeBox' not in data['userData']: data["userData"]['statusTimeBox'] = False  # testVariable
+
+        data['textMsg'] = "К сожалению, вам отказано в доступе! Проверьте все ваши данные перед отправкой!"
+
+        if request.method == "POST":
+            typeInput = list(request.form)[0] if "type" not in request.form else request.form["type"]
+
+            # Разбираем всё, что пришло и проверяем основной массив данных с профилем пользователя!
+            for i in list(request.form):
+                # в основном мы провееряем здесь hash, uid, но в редких случаях мы можем добавить!
+                if i in data["userData"] and i not in ["login"]:
+                    if request.form[i] != data["userData"][i]:
+                        # неправильные данные - сбрасываем процесс!
+                        typeInput = "off"
+                        break
+            if typeInput != "off":
+                if "@" in typeInput:
+                    params = {}
+                    for i in list(request.form):
+                        params[i] = request.form[i]
+                    genTimeToken(typeInput, data["userData"], params=params)
+                    data['textMsg'] = f"Всё отправлено!"
+                elif (typeInput in data["userData"]
+                      and typeInput not in ["hash", "uid", "surname", "tokens", "timeToken", "statusTimeBox"]):
+                        if typeInput == "password" and request.form["New1Password"] == request.form["New2Password"]\
+                                or typeInput == "login":
+                            token = genTimeToken(typeInput, data["userData"], params={typeInput: request.form[typeInput]})
+                            data['textMsg'] = f"""Отправьте в личные сообщения <a href=\"https://vk.com/tboxo\">группы Tibox</a> 
+вот это - </div> <br><div id="title">Подтвердить {token}"""
+
+        data["textMsg"] = f"<p style=\"color:#ff2020;font-weight:bold;\">{data['textMsg']}</p>"
+
+        data['id'] = "formRead"
+        data = extractInfo(data)
+        return render_template('gen.html', data=data)
+
+
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     try:
@@ -265,94 +375,58 @@ def dashboard():
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
-    pattern = json.loads(readStorage("templates/dashboard.json"))
-    # writeStorage(json.dumps(pattern, ensure_ascii=False), 'dashboard.json')
-
     if request.cookies.get('log') in auth['accounts']:
+        if 'tokens' not in auth['accounts'][request.cookies.get('log')]:
+            auth['accounts'][request.cookies.get('log')]["tokens"] = []  # testVariable
+        if 'timeToken' not in auth['accounts'][request.cookies.get('log')]:
+            auth['accounts'][request.cookies.get('log')]["timeToken"] = []  # testVariable
+        if 'statusTimeBox' not in auth['accounts'][request.cookies.get('log')]:
+            auth['accounts'][request.cookies.get('log')]['statusTimeBox'] = False  # testVariable
         data = {
-            "pattern": pattern,
+            "pattern": json.loads(readStorage("templates/dashboard.json")),
             "userData": auth['accounts'][request.cookies.get('log')],
-            "list": list(pattern),
-            "way": url_for("dashboard", page="formRead"),
+            "list": list(json.loads(readStorage("templates/dashboard.json"))),
+            "way": url_for("verification"),
             "textMsg": "",
             "numberApi": len(auth['accounts'][request.cookies.get('log')]['tokens'])
         }
-        if 'tokens' not in data['userData']: data["userData"]["tokens"]=[] # testVariable
+        if 'tokens' not in data['userData']: data["userData"]["tokens"] = []  # testVariable
         if 'timeToken' not in data['userData']: data["userData"]["timeToken"] = []  # testVariable
-        if 'statusTimeBox' not in data['userData']: data["userData"]['statusTimeBox']=False # testVariable
+        if 'statusTimeBox' not in data['userData']: data["userData"]['statusTimeBox'] = False  # testVariable
 
         args = request.args.get('page')
 
-        if args == "formRead" and request.method == "POST":
-            trigger = True
-            typeInput = list(request.form)[0]
-            print(typeInput)
-
-            # Разбираем всё, что пришло и проверяем основной массив данных с профилем пользователя!
-            for i in list(request.form):
-                # в основном мы провееряем здесь hash, uid, но в редких случаях мы можем добавить!
-                if i in data["userData"] and i not in ["login"]:
-                    if request.form[i] != data["userData"][i]:
-                        # неправильные данные - сбрасываем процесс!
-                        trigger = False
-                        break
-
-            if trigger and genTimeToken(typeInput, data["userData"], **params):
-
-
-                    data['textMsg'] = f"""Отправьте в личные сообщения <a href=\"https://vk.com/tboxo\">группы Tibox</a> 
-вот это - </div> <br><div id="title">Подтвердить {token['token']}"""
-
-            else:
-                data['textMsg']="К сожалению, вам отказано в доступе! Проверьте все ваши данные перед отправкой!"
-            data["textMsg"]=f"<p style=\"color:#ff2020;font-weight:bold;\">{data['textMsg']}</p>"
-
         # определение тега страницы для генерации из json
         if args:
-            if args in data['list']: data['id'] = args
-            else: data['id'] = "error"
-        else: data['id'] = data['list'][0]
+            if args in data['list']:
+                data['id'] = args
+            else:
+                data['id'] = "error"
+        else:
+            data['id'] = data['list'][0]
 
         data["userData"].pop("password")
 
         # генератор данных из value в dashboard.json
-        if 'content' in data['pattern'][data['id']]:
-            items = data['pattern'][data['id']]['content']['items']
-            for item in items:
-                for line in list(item['content']):
-                    if line !="name":
-                        if type(item['content'][line]) == dict: array = item['content'][line]['value']
-                        else: array = item['content']['value']
-                        array=array.split("<#>")
-                        if "-@" in array[0] and len(array)>1:
-                            array[0]=array[0].replace("-@","")
-                            path=array[0].split("|")
-                            lastElement = path[len(path) - 1].split("->")
-                            try:
-                                info = data
-                                for i in range(len(path)-1): info = info[path[i]]
-                            except: raise RuntimeError(f'Неправильно указали путь, либо его не существует - {str(path)}')
-                            else:
-                                part = (item['content'][line] if type(item['content'][line]) == dict else item['content'])
-                                if len(lastElement)>1:
-                                    element=lastElement[1].split("/")
-                                    part['value']=str(element[0] if info[lastElement[0]] else element[1])
-                                else: part['value']=str(info[lastElement[0]]) + array[1]
+        data = extractInfo(data)
+        print(data)
 
         # генерируем пункты меню, убирая те, которые скрыты!
         info = data['list'].copy()
         for i in info:
             if data['pattern'][i]['hidden']: data['list'].remove(i)
 
-        return render_template('roomNew.html', data=data)
+        return render_template('room.html', data=data)
     else:
         res = make_response(redirect(url_for('signin')))
         res.set_cookie('log', '', max_age=0)
         return res
 
+
 @app.route('/dashboard/api', methods=['GET'])
 def api():
     return "<h2>Позже появиться в 2.0 версии, а пока это лишь место костылей!</h2>"
+
 
 @app.route('/dashboard/timebox', methods=['GET'])
 def applicationDonwload():
@@ -363,34 +437,47 @@ def applicationDonwload():
         return '<h1>Error UNDEFINED</h1><hr>\
         <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
-    pattern = json.loads(readStorage("templates/dashboard.json"))
-
     if request.cookies.get('log') in auth['accounts']:
+        if 'tokens' not in auth['accounts'][request.cookies.get('log')]:
+            auth['accounts'][request.cookies.get('log')]["tokens"] = []  # testVariable
+        if 'timeToken' not in auth['accounts'][request.cookies.get('log')]:
+            auth['accounts'][request.cookies.get('log')]["timeToken"] = []  # testVariable
+        if 'statusTimeBox' not in auth['accounts'][request.cookies.get('log')]:
+            auth['accounts'][request.cookies.get('log')]['statusTimeBox'] = False  # testVariable
         data = {
-            "pattern": pattern,
+            "pattern": json.loads(readStorage("templates/dashboard.json")),
             "userData": auth['accounts'][request.cookies.get('log')],
-            "list": list(pattern),
-            "way": url_for("dashboard", page="formRead"),
+            "list": list(json.loads(readStorage("templates/dashboard.json"))),
+            "way": url_for("verification"),
             "textMsg": "",
             "numberApi": len(auth['accounts'][request.cookies.get('log')]['tokens'])
         }
-        if 'tokens' not in data['userData']: data["userData"]["tokens"] = []  # testVariable
-        if 'timeToken' not in data['userData']: data["userData"]["timeToken"] = []  # testVariable
-        if 'statusTimeBox' not in data['userData']: data["userData"]['statusTimeBox'] = False  # testVariable
 
-        if not auth['accounts'][request.cookies.get('log')]['statusTimeBox']: data['id'] ="requestTimeBox"
+        if not auth['accounts'][request.cookies.get('log')]['statusTimeBox']:
+            data['id'] = "requestTimeBox"
+        else:
+            data['id'] = "formRead"
+            data['textMsg'] = "Привет!</div><div id = \"text\" style=\"display:contents;\"> " \
+                              f"<div>Скачать вы можете программу с " \
+                              f"<a href=\"{url_for('static', filename='TimeBox.exe')}\" download>сервера</a> или " \
+                              "<a href=\"https://raw.githubusercontent.com/AlphaO612/TimeBox/main/TimeBox.exe\" " \
+                              "download> GitHub-а</a>!</div>" \
+                              "<div> Мануал, как работать с программой, ты можешь скачать с " \
+                              f"<a href=\"{url_for('static', filename='TimeBox.pdf')}\" download>сервера</a></div>" \
+                              f"<div> А вот загружать вам надо вот <a href=\"{url_for('file')}\">ЗДЕСЬ</a>!</div>"
 
         # генерируем пункты меню, убирая те, которые скрыты!
         info = data['list'].copy()
         for i in info:
             if data['pattern'][i]['hidden']: data['list'].remove(i)
-
-        return render_template('roomNew.html', data=data)
+        data = extractInfo(data)
+        return render_template('gen.html', data=data)
 
     else:
         res = make_response(redirect(url_for('signin')))
         res.set_cookie('log', '', max_age=0)
         return res
+
 
 @app.route('/dashboard/file', methods=['GET', 'POST'])
 def file():
@@ -401,7 +488,7 @@ def file():
         return '<h1>Error UNDEFINED</h1><hr>\
     <p>Пиши Alph-е, т.к. это значит доступа к данным акков не возможно получить!</p>'
 
-    if request.cookies.get('log') in auth['accounts'] and False:
+    if request.cookies.get('log') in auth['accounts'] and auth['accounts'][request.cookies.get('log')]['statusTimeBox']:
         if request.method == 'POST':
             if 'file' not in request.files:
                 flash('No file part')
@@ -415,10 +502,18 @@ def file():
                     file.save(os.path.join(pwd, 'test.json'))
                     try:
                         data = json.loads(readStorage('test.json'))
-                        if list(lib) != list(data['week']): raise TypeError()
+
+                        oldfile = json.loads(readStorage('solo.json'))
+
+                        if list(lib) != list(data['week']) or oldfile == data: raise TypeError(
+                            "Your file is broken or same, what now using!")
                     except Exception as e:
                         return f'<p><h1 style="color:red;">Check your file</h1></p><p>{e} - {str(e)}</p><p><a href="{request.url}">Back</a></p>'
                     else:
+                        writeStorage(readStorage('solo.json'),
+                                     f'historyTime/'
+                                     f'{auth["accounts"][request.cookies.get("log")]["infoTimeBox"]["token"]}_'
+                                     f'{int(datetime.datetime.today().timestamp())}.json')
                         writeStorage(json.dumps(data, ensure_ascii=False), 'solo.json')
                         return f'<p><h1>fine! you loaded it!</h1></p<p><a href="{url_for("index")}">Back</a></p>'
                 return redirect(url_for('index'))
@@ -428,6 +523,7 @@ def file():
  <input type="submit" value="Load"></p> </form>'
     else:
         return redirect(url_for('index'))
+
 
 @app.route('/now', methods=['GET'])
 def now():
@@ -485,6 +581,7 @@ def now():
 
     return render_template('data.html', data=date)
 
+
 @app.route('/aboutus', methods=['GET'])
 def aboutus():
     deadline = datetime.datetime.today()
@@ -494,39 +591,42 @@ def aboutus():
         "way": "?time=" + str(int((deadline).timestamp())),
     }
     args = list(request.args)
-    date['img'] = (url_for('static', filename='smile.png') if 'author' not in args else url_for(\
+    date['img'] = (url_for('static', filename='smile.png') if 'author' not in args else url_for( \
         'static', filename='author.jpg'))
-    date['title'] = ({"author":"AlphaSTE","commits":"Commits"}[args[0]] if len(args) else "TimeBox")
-    date['subname'] = ({"author":"О авторе","commits":"Commits"}[args[0]] if len(args) else "Добро пожаловать!")
+    date['title'] = ({"author": "AlphaSTE", "commits": "Commits"}[args[0]] if len(args) else "TimeBox")
+    date['subname'] = ({"author": "О авторе", "commits": "Commits"}[args[0]] if len(args) else "Добро пожаловать!")
     date['links'] = [
-        {"name":"Github","link":"https://github.com/AlphaO612"},
-        {"name":"Vk.com","link":"https://vk.com/aao2014"},
-        {"name":"Commits","link":url_for('aboutus', commits=0)},
-        {"name":"О проекте","link":url_for('aboutus')},
-        {"name":"О создателе","link":url_for('aboutus', author=0)},]
-    date['links'].remove(date['links'][{"author":4,"commits":2}[args[0]] if len(args) else 3])
+        {"name": "Github", "link": "https://github.com/AlphaO612"},
+        {"name": "Vk.com", "link": "https://vk.com/aao2014"},
+        {"name": "Commits", "link": url_for('aboutus', commits=0)},
+        {"name": "О проекте", "link": url_for('aboutus')},
+        {"name": "О создателе", "link": url_for('aboutus', author=0)}, ]
+    date['links'].remove(date['links'][{"author": 4, "commits": 2}[args[0]] if len(args) else 3])
     if 'commits' in args:
         date['commits'] = []
         info = requests.get("https://api.github.com/repos/alphao612/TimeBox/commits").json()
         for i in info: date['commits'].append({
-            "author":i['commit']['author']['name'],
+            "author": i['commit']['author']['name'],
             "date": i['commit']['author']['date'],
-            "name": i['commit']['message'].replace("\n","</div><div>"),
+            "name": i['commit']['message'].replace("\n", "</div><div>"),
         })
-    if 'author' in args: date["text"] = \
-"""Создал сие проект - я, Иванов Андрей!
+    if 'author' in args:
+        date["text"] = \
+            """Создал сие проект - я, Иванов Андрей!
 Человек, который говорит, что умеет программировать, но у него всегда всё с проблемами)))
 Учусь сейчас в МПГУ на прикладную информатику, также параллельно работаю над двумя активными проектами: TimeBox и ApiAlpha. 
 Также обожаю аниме и мангу... и Komi-san!
 Для вопросов, предложений и багов мой вк всегда открыт!
 Удачки!"""
-    else: date["text"] =\
-"""TimeBox - проект, который был создан ещё мною во время конце карантина у меня в 10 классом в качестве единой альтернативной неофициальной площадки для получения расписания, оценок. Она должна была заменить edu.tatar.ru, но проект лишь увидел свет во время поступления в МПГУ!
+    else:
+        date["text"] = \
+            """TimeBox - проект, который был создан ещё мною во время конце карантина у меня в 10 классом в качестве единой альтернативной неофициальной площадки для получения расписания, оценок. Она должна была заменить edu.tatar.ru, но проект лишь увидел свет во время поступления в МПГУ!
 Причиной его появления для меня стало ужастное лично для меня отображения расписания, по сраавнению с другими университетами моих друзей.
 Пока проектом занимаюсь лишь я, но надеюсь данный проект станет чуть больше, чем любительский... 
 Ага, конечно!)))))))"""
 
     return render_template('aboutus.html', data=date)
+
 
 @app.route('/box', methods=['GET'])
 def hello():
@@ -547,7 +647,7 @@ def hello():
             'les': [],
             'textTime': (f"Сегодня" if deadline.date() == datetime.datetime.today().date() else (f"В буд\
 ущем на {abs((deadline.date() - datetime.datetime.today().date()).days)} дней" if deadline > datetime.datetime \
-                                                                                            .today() else f"В прошлом \
+                                                                                                 .today() else f"В прошлом \
 на {abs((deadline.date() - datetime.datetime.today().date()).days)} дней"))
         }
 
@@ -599,6 +699,7 @@ def hello():
         deadline = int(deadline.timestamp())
         return redirect(url_for('hello', time=deadline))
 
+
 @app.route('/calendar', methods=['GET'])
 def calendar():
     if request.args.get('time', ''):
@@ -619,7 +720,7 @@ def calendar():
             'month': [],
             'textTime': (f"Сегодня" if deadline.date() == today.date() else (f"В буд\
 ущем на {abs((deadline.date() - today.date()).days)} дней" if deadline > datetime.datetime \
-                                                                                        .today() else f"В прошлом \
+                                                                             .today() else f"В прошлом \
 на {abs((deadline.date() - today.date()).days)} дней"))
         }
 
@@ -646,6 +747,7 @@ def calendar():
         moment = datetime.datetime.now().time()
         deadline = int(datetime.datetime.combine(today, moment).timestamp())
         return redirect(url_for('calendar', time=deadline))
+
 
 @app.route('/lesson/<name>', methods=['GET'])
 def les(name=None):
@@ -708,6 +810,18 @@ def les(name=None):
         print(deadline)
         deadline = int(deadline.timestamp())
         return redirect(url_for('les', name=name, time=deadline))
+
+
+@app.errorhandler(404)
+@app.errorhandler(500)
+@app.errorhandler(403)
+def page_error(e):
+    return render_template('gen.html', data={"pattern": json.loads(readStorage("templates/dashboard.json")),
+                                             "list": [],
+                                             "profile": False,
+                                             "textMsg": "",
+                                             'id': "error"})
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80)

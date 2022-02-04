@@ -3,10 +3,12 @@
 
 from flask import render_template, Flask, redirect, url_for, request, send_from_directory, flash, make_response
 from random import randint
+from uuid import uuid4
 from time import sleep
 import datetime, json, os, codecs, requests, asyncio, traceback
 
 pwd = '/root/TimeBox/' if os.name == 'posix' else ''
+author_id = 204987435
 
 lib = {
     "mon": "понедельник",
@@ -98,6 +100,13 @@ class vkApi:
 
     def send(self, text: str, user_ids: list, **param):
         # try:
+        print(json.dumps({**{
+                                "access_token": self.token,
+                                "user_ids": user_ids,
+                                "message": text,
+                                "random_id": 0,
+                                "v": 5.131
+                            }, **param}, ensure_ascii=False))
         info = requests.get(f"https://api.vk.com/method/messages.send",
                             params={**{
                                 "access_token": self.token,
@@ -126,7 +135,7 @@ buttons = {
                         "type": "text",
                         "label": "Помощь"
                     },
-                    "color":"primary"
+                    "color": "primary"
                 },
                 {
                     "action": {
@@ -154,23 +163,54 @@ buttons = {
             ]
         ]
     },
+    "принять": {
+        "inline": True,
+        "buttons": [
+            [
+                {
+                    "action": {
+                        "type": "open_link",
+                        "link": "http://tibox.tk/dashboard",
+                        "label": "Зайти в личный кабинет"
+                    }
+                },
 
+            ]
+        ]
+    },
 }
+
+
+async def checkCalls():
+    content = {
+        "text": "",
+        "users": []
+    }
+
+    auth = json.loads(readStorage("auth.json"))
+    for block in auth["timeToken"]:
+        if block['type'].split("#")[0] == "@call" and "checkBot" not in block:
+            content['users'] = [author_id]
+            content['text'] = "Сообщение вызова\n" + "_" * 10
+            for i in list(block):
+                content['text'] += f"\n{i} - {block[i] if i != 'date' else block[i]}"
+            print(main.send(content['text'],
+                            content['users']))
+            block['checkBot'] = int(datetime.datetime.today().timestamp())
+            writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
 
 
 async def checkMsgs():
     for i in main.readTypeEvents("message_new"):
+        auth = json.loads(readStorage("auth.json"))
         command = i['message']['text'].lower().split()
-        content = {
-            "text": "",
-            "buttons": (command[0] if command[0] in buttons else "помощь")
-        }
+        content = {}
         if command[0] == "помощь":
             content['text'] = "Проверяй мои кнопки!"
 
         elif command[0] == "подтвердить" and len(command) > 1:
-            auth = json.loads(readStorage("auth.json"))
             trigger = None
+            content['text'] = "Время ожидания истекло или вы неправильно ввели код!( \nПопытайтесь ещё раз провести процедуру заново!"
             for a in auth["timeToken"]:
                 if a['uid'] == str(i['message']['from_id']):
                     trigger = a
@@ -180,36 +220,75 @@ async def checkMsgs():
                             if trigger['type'] in account and trigger['type'] not in ["hash", "uid", "surname"]:
                                 account[trigger['type']] = trigger[trigger['type']]
                                 content['text'] = f"Всё прошло успешно, изменения приняты!\n Теперь ваш {trigger['type']} - {trigger[trigger['type']]}"
-
-                            elif "@call#" in trigger['type']:
-                                if trigger['type'].split()[0] == ""
-
                         else:
                             content['text'] = "Время ожидания истекло или вы неправильно ввели код!( \nПопытайтесь ещё раз провести процедуру заново!"
 
-                if trigger in auth['timeToken']:
-                    auth['timeToken'].remove(trigger)
+                    if trigger in auth['timeToken']:
+                        auth['timeToken'].remove(trigger)
 
-                if trigger in account["timeToken"]:
-                    account["timeToken"].remove(trigger)
+                    if trigger in account["timeToken"]:
+                        account["timeToken"].remove(trigger)
 
                 writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
-                if trigger != None: break
 
-            if trigger == None:
-                content['text'] = "Время ожидания истекло или вы неправильно ввели код!( \nПопытайтесь ещё раз провести процедуру заново!"
         else:
             content['text'] = "Прости, но видно команда не правильно написана!"
 
+        if i['message']['from_id'] == author_id:
+            if command[0] == "список" and len(command) > 1:
+                count = 0
+                content['text'] = ""
+                for block in auth["timeToken"]:
+                    if command[1] in block['type']:
+                        account = auth['accounts'][auth['vkHash'][block['hash']]]
+                        content['text'] += f"\n{count + 1}. {account['name']} {account['surname']}({block['uid']})" \
+                                           + "=" * 5
+                        content['text'] += f"\n- Группа: {block['groupNum']} в {block['institute']} " \
+                                           f"(https://vk.com/id{block['lvl']} курс)"
+                        content['text'] += f"\n- Система: {block['system']}({block['systemName']})"
+                        content['text'] += "\n" + "=" * 5
+                        count += 1
+                content['text'] = f"Список {count} человек с типом запросом \"{command[1]}\":" + content['text']
+            elif command[0] == "принять" and len(command) > 3:
+                for block in auth["timeToken"]:
+                    block['type'] = block['type'].lower()
+                    print(f"{block['type'].split('#')[1]}")
+                    if command[1] == str(block['uid']) and command[2] == block['type']:
+                        account = auth['accounts'][auth['vkHash'][block['hash']]]
+                        main.send(f"Ваш запрос был одобрен!\nКомментарий модератора: {command[3]}", [block['uid']])
+                        if block['type'].split("#")[1] == "requestmod":
+                            auth['accounts'][auth['vkHash'][block['hash']]]['statusTimeBox'] = True
+                            if "infoTimeBox" not in account:
+                                auth['accounts'][auth['vkHash'][block['hash']]]['infoTimeBox'] = {
+                                    "token": str(uuid4()),
+                                    "rep": 0,
+                                    "group": block['groupNum']
+                                }
+                                if block in auth['timeToken']:
+                                    auth['timeToken'].remove(block)
+                                block.pop("checkBot")
+                                if block in account["timeToken"]:
+                                    auth['accounts'][auth['vkHash'][block['hash']]]["timeToken"].remove(block)
+                                writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
+
+                            content['text'] = f"Отправлено и принят запрос"
+
+
+        content['buttons'] = (command[0] if command[0] in buttons else "помощь")
+        content['reply_id'] = i['message']['id']
+        content['users'] = [i['message']['from_id']]
+
         print(main.send(content['text'],
-                  [i['message']['from_id']],
-                  reply_to=i['message']['id'],
-                  keyboard=json.dumps(buttons[content['buttons']], ensure_ascii=False)))
+                        content['users'],
+                        reply_to=content['reply_id'],
+                        keyboard=json.dumps(buttons[content['buttons']], ensure_ascii=False)))
+
 
 async def meetingFirst():
     for i in main.readTypeEvents("message_allow"):
         main.send("Привет!\nЯ - бот TimeBox, созданный для помощи в работе с сайтом!", [i['user_id']],
-                  keyboard=json.dumps(buttons['help'], ensure_ascii=False))
+                  keyboard=json.dumps(buttons['помощь'], ensure_ascii=False))
+
 
 async def body():
     while main.update(True):
@@ -219,11 +298,19 @@ async def body():
                 checkMsgs())
             task2 = asyncio.create_task(
                 meetingFirst())
+            task3 = asyncio.create_task(
+                checkCalls())
+            await task3
             await task1
             await task2
         except Exception as e:
-            main.send(f"Ошибка в боте\n-------------------------------\n{e}\n**************\n{traceback.format_exc()}",
-                      [204987435])
+            try:
+                main.send(
+                    f"Ошибка в боте\n-------------------------------\n{e}\n**************\n{traceback.format_exc()}",
+                    [author_id])
+            except:
+                pass
         sleep(1)
+
 
 asyncio.run(body())

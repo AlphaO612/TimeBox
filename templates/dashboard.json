@@ -221,6 +221,16 @@
       "half": false,
       "items": [
         {
+          "type": "input",
+          "arguments": "",
+          "content": {
+            "type": "hidden",
+            "name": "type",
+            "value": "@call#requestMod",
+            "style": "align-items:flex-start;"
+          }
+        },
+        {
           "type": "multiline",
           "arguments": "required",
           "content": {
@@ -286,7 +296,7 @@
               },
               {
                 "id": "win11",
-                "text": "Windows 10"
+                "text": "Windows 11"
               },
               {
                 "id": "debian",
@@ -360,7 +370,32 @@
         {
           "type": "text",
           "content": {
-            "value": "-@textMsg<#></div><div id=\"subtitle\">Выберите в меню пункт!"
+            "value": "-@textMsg<#></div><div id=\"subtitle\"><a href=\"/index\">Домой</a>"
+          }
+        }
+      ]
+    }
+  },
+  "deleteAll": {
+    "id": "deleteAll",
+    "hidden": true,
+    "name": "Изменения данных!",
+    "content": {
+      "half": true,
+      "items": [
+        {
+          "type": "text",
+          "content": {
+            "value": "Вы уверены? <br>Если вы удалите аккаунт, то все данные будет невозможно вернуть, Даже модерация не в силах это сделать."
+          }
+        },
+        {
+          "type": "button",
+          "content": {
+            "a": {
+              "value": "Да, я уверен!",
+              "link": "/check?page=deleteAll"
+            }
           }
         }
       ]

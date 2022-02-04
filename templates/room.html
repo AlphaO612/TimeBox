@@ -1,16 +1,17 @@
-<head lang="ru">
-	<style type="text/css">
+<style type="text/css">
 		@import url('https://fonts.googleapis.com/css?family=Ropa%20Sans');
 		@import url('https://fonts.googleapis.com/css?family=PT%20Sans');
 		/* Фон */
 		body {
 			/*background: linear-gradient(118.71deg, #28ABD5 24.35%, #AEE8E8 85.06%), #C4C4C4;*/
 			background: linear-gradient(118.71deg, #284ED5 24.35%, #8039DA 85.06%);
+
+			overflow-x: hidden;
 		}
 
 		A {
 	    	text-decoration: none;
-	    } 
+	    }
 	    /*.lesson:hover {
 		    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.40) 50%, rgba(255, 255, 255, 0) 100%);
 	    } */
@@ -61,7 +62,7 @@
 			margin: auto;
 			position: relative;
 			width: 54%;
-			height: 20%;
+			height: 14%;
 			top: 4.2%;
 			/*left: 23%;
 			right: 23%;*/
@@ -117,7 +118,6 @@
 			overflow-y: auto;
 			transition: 1.2s opacity ease-in-out;
 		}
-
 
 		/* ТекстУрока */
 		.lesson{
@@ -278,7 +278,7 @@
 		.tut:hover {
 			color: rgba(211, 245, 255, 0.9);
 		}
-		
+
 		#type{
 			font-family: PT Sans;
 			font-style: normal;
@@ -313,7 +313,7 @@
 			border-radius: 50%;
 			box-shadow: 0px 0px 10px 3px rgba(130, 69, 230, 0.4);
 		}
-		.profile #name{
+		.profile #nameProfile{
 			margin-left: 20px;
 			position: static;
 			width: 623px;
@@ -329,8 +329,8 @@
 			letter-spacing: -0.045em;
 			color: #000000;
 		}
-		
-		.main{
+
+		.block{
 			height: 66%;
 			background: rgba(255, 255, 255, 0.96);
 			box-shadow: 0px 4px 9px rgb(0 0 0 / 25%);
@@ -341,28 +341,158 @@
 			margin-left: 10%;
 			margin-right:10%;
 			text-align: center;
-			flex-direction: column;
-			justify-content: center;
+			flex-wrap: nowrap;
+    		justify-content: center;
 			overflow-y: auto;
 			transition: 1.2s opacity ease-in-out;
-			
+			padding:2%;
+		}
+
+		.menu{
+			width: 20%;
+			height: auto;
+			display: flex;
+
+			margin-right: 2%;
+
+			text-align: center;
+			flex-direction: column;
+			justify-content: flex-start;
+			overflow-y: auto;
+
     		flex-wrap: nowrap;
 		}
-		
-		.main #title{
+
+		.menu #title{
 			font-family: PT Sans;
 			font-style: normal;
 			font-weight: bold;
-			font-size: 140%;
+			font-size: 600%;
+			margin:0;
+			margin-top:3%;
+
+			letter-spacing: -0.075em;
 		}
-		
-		.main #smile{
+
+		.menu #smile{
+			max-width:70%;
+			height:auto;
 			border-radius: 50%;
 			margin-top: 29px;
 			margin-left: auto;
     		margin-right: auto;
-			
+
 			box-shadow: 0px 0px 29px 10px rgba(130, 69, 230, 0.83);
+		}
+
+		.main{
+			width:80%;
+			height: auto;
+			display:flex;
+			flex-direction: column;
+    		justify-content: flex-start;
+			align-content: center;
+			align-items: center;
+			color:#1D1D1D;
+
+			overflow-x: hidden;
+			overflow-y: auto;
+		}
+		.main #title{
+			font-family: PT Sans;
+			font-style: normal;
+			font-weight: bold;
+			font-size: 200%;
+			letter-spacing: -0.075em;
+			color:#000000;
+			margin:0;
+
+			margin-bottom:2%;
+		}
+		.main #subtitle{
+			font-family: PT Sans;
+			font-style: normal;
+			font-weight: bold;
+			font-size: 160%;
+			letter-spacing: -0.075em;
+
+			margin:0;
+		}
+		.main #text{
+			font-family: PT Sans;
+			font-style: normal;
+			font-size: 134%;
+			font-weight: normal;
+			margin-bottom:2%;
+		}
+		.main #block{
+			width:55%;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.main #point{
+   			 width: fit-content;
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			align-items: baseline;
+		}
+		.main #point > div,input,button{
+			flex: 1 1 auto;
+			text-align: center;
+
+			margin: 2.5%;  /* and that, will result in a 10px gap */
+		}
+
+		.main A[id=subtitle]{
+			color:#1D1D1D;
+		}
+
+		.main #input{
+			font-family: PT Sans;
+			font-style: normal;
+			font-size: 120%;
+			font-weight: normal;
+
+			border: 0 solid #45276A;
+			border-bottom-width: thick;
+		}
+
+		.main #button{
+			height:fit-content;
+			width:fit-content;
+
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+    		justify-content:center;
+
+    		padding: 0.8vh;
+
+			background: rgba(255, 255, 255, 0.68);
+
+			border: 0.3vw solid #45276A;
+
+			border-radius: 11px;
+
+			font-family: PT Sans;
+			font-style: normal;
+			font-size: 100%;
+			font-weight: normal;
+			color: #280C4A;
+		}
+
+		.main #button:hover{
+			transform: scale(1.01,1.01);
+			box-shadow: 0px 3px 0px rgba(0, 0, 0, 0.25);
+			transition: 0.1s ease-in-out;
+		}
+
+		.main #button:active {
+			background: rgba(210, 200, 219, 0.68);
+			transition: 0.1s ease-in-out;
 		}
 
 		.icons{
@@ -389,7 +519,105 @@
 			right: 3%;
 		}
 
+		.commits{
+			width:90%;
+			height:400px;
+
+			padding:2%;
+
+			font-family: PT Sans;
+			font-style: normal;
+			font-size: 134%;
+			font-weight: normal;
+
+			display:flex;
+			flex-direction: column;
+			margin-bottom:2%;
+
+			overflow-y: auto;
+		}
+
+		.card{
+			height:fit-content;
+			display: flex;
+			flex-direction: column;
+			padding: 4%;
+			margin:1%;
+
+			background: rgba(255, 255, 255, 0.68);
+
+			box-shadow: 0px 4px 9px rgba(0, 0, 0, 0.25);
+			border-radius: 11px;
+    		align-items: flex-start;
+		}
+
+		.card #name{
+			font-family: PT Sans;
+			font-style: normal;
+			font-size: 134%;
+			font-weight: bold;
+
+			color: #000000;
+			margin:0;
+		}
+		.card A{
+			color: #000000;
+			opacity:0.78;
+		}
+
+		.card A:hover{
+			opacity:1;
+
+			transition: 0.08s opacity ease-in-out;
+		}
+
+		.card #info{
+			font-family: PT Sans;
+			font-style: normal;
+			font-size: 60%;
+			font-weight: normal;
+			color: #8c8c8c;
+			margin:0;
+		}
+
+		.partHalf{
+			width:100%;
+			height:100%;
+
+			display:flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.partHalf #half{
+			width:50%;
+			height:100%;
+
+			display:flex;
+			flex-direction: column;
+			justify-content:center;
+			align-content: center;
+			align-items: center;
+		}
+
+		.partHalf #smile{
+			max-width:65%;
+			height:auto;
+			border-radius: 50%;
+			margin-bottom: 5%;
+			margin-left: auto;
+    		margin-right: auto;
+
+			box-shadow: 0px 0px 29px 10px rgba(130, 69, 230, 0.83);
+		}
+
 		@media only screen and (hover: none) and (pointer: coarse)and (orientation: landscape){
+
+
+			.block{
+				position:relative;
+				top: -3vw;
+			}
 
 			#mobile{
 				transform:scale(0.5);
@@ -398,31 +626,85 @@
 				width: 110px;
 				height: 110px;
 			}
-			
+
 			#type {
 				font-size: 100%;
 			}
 
+			.menu #title{
+				font-size: 320%;
+			}
+
+			.main #title{
+				font-size: 150%;
+
+			}
+			.main #subtitle{
+				font-size: 70%;
+			}
+			.main #text{
+				font-size: 80%;
+			}
+
+			.main #block{
+				width:65%;
+			}
+			.main #button{
+				font-size: 80%;
+			}
+
+			.commits{
+				height:190px;
+			}
+
+			.card #name{
+				font-size: 70%;
+				margin:0;
+			}
+
+			.card #info{
+				font-size: 40%;
+			}
+			.main #input{
+				font-size: 80%;
+				font-weight: normal;
+
+				border: 0 solid #45276A;
+				border-bottom-width: 0.3em;
+			}
 		}
+
 		@media only screen and (hover: none) and (pointer: coarse)and (orientation: portrait){
 
 			#mobile{
 				transform:scale(1.3);
 			}
-			
+
 			.main{
-				
+
     			margin-top: 20%;
 			}
-			
-			.timeBox{
-				top: 7%
+
+			.menu #title{
+				font-size: 200%;
 			}
 
+			.timeBox{
+				top: 7%;
+				height:18%;
+			}
 
+			.menu #title{
+				font-size: 250%;
+			}
+			.block{
+				position:relative;
+				top:10%;
+			}
 		}
-		
+
 	</style>
+<head lang="ru">
 	<title>TimeBox</title>
 	<meta name="viewport" content="width=850, user-scalable=yes">
 	<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
@@ -444,11 +726,115 @@
 			<img src="{{url_for('static',filename = 'svgs/LogIn.svg')}}" width="40" height="40"/>
 		</a>
 	</div>
-	
-	<div class="profile" id="mobile"><img src="{{data['img']}}" id="picture" width="60" height="60"><p id="name">{{data['name']}} {{data['surname']}}</p></div>
-	
-	<div class="main">
-		<img id="smile" src="{{url_for('static',filename = 'smile.png')}}" width="233" height="233">
-		<p id="title">Тут пусто...<br> Я просто ничего не придумал, к сожалению!</p>
+
+	<div class="profile" id="mobile"><img src="{{data['userData']['img']}}" id="picture" width="60" height="60"><p id="nameProfile">{{data['userData']['name']}} {{data['userData']['surname']}}</p></div>
+
+	<div class="block">
+		<div class="menu">
+			{% for i in data['list'] %}
+				{% set info = data['pattern'][i] %}
+				{% if data['id'] == info['id'] %}
+					<a href="{{info['link']}}" class="card"><div id="name" style="{{info['style']}}">{{info['name']}}</div></a>
+				{% else %}
+					<a href="{{info['link']}}" class="card" style="background: none;box-shadow: 0px 4px 9px rgba(0, 0, 0, 0);"><div id="name" style="{{info['style']}}">{{info['name']}}</div></a>
+				{% endif %}
+			{% endfor %}
+		</div>
+		<div class="main">
+			<div id="title">{{data['pattern'][data['id']]['name']}}</div>
+			<div class="partHalf">
+				{% if data['pattern'][data['id']]['content']['half'] %}
+					<div id="half">
+						<img id="smile" src="{{data['userData']['img']}}" width="233" height="233">
+						<p id="title">{{data['userData']['name']}} {{data['userData']['surname']}}</p>
+					</div>
+				{% endif %}
+				<form enctype="multipart/form-data" method="POST" action="{{data['way']}}"  id="half" style="width:100%;">
+					{% for i in data['pattern'][data['id']]['content']['items'] %}
+
+						{% set bulat = i['type'] %}
+						{% autoescape false %}
+							{% if bulat == 'title' %}
+								<div id="title" style="{{i['content']['style']}}" {{i['arguments']}}>{{i['content']['value']}}</div>
+
+							{% elif bulat == 'subtitle' %}
+								<div id="subtitle" style="{{i['content']['style']}}width: auto;flex: none;" {{i['arguments']}}>{{i['content']['value']}}</div>
+
+							{% elif bulat == 'text' %}
+								<div id="text" style="{{i['content']['style']}}" {{i['arguments']}}>{{i['content']['value']}}</div>
+
+							{% elif bulat == 'checkbox' %}
+								<div id="point" style="{{i['content']['style']}}">
+									{% for a in i['content']['boxes'] %}
+										<label>
+											<input type="{{i['content']['type']}}" name="{{i['content']['name']}}" value="{{a['id']}}" {{i['arguments']}}>
+											{{a['text']}}
+										</label>
+									{% endfor %}
+								</div>
+
+							{% elif bulat == 'button' %}
+								<div id="point">
+									{% if 'button' in i['content'] %}
+										<button type="submit" id="button" style="{{i['content']['button']['style']}}"  {{i['arguments']}}>{{i['content']['button']['value']}}</button>
+									{% elif 'a' in i['content'] %}
+										<a href="{{i['content']['a']['link']}}" id="button" style="{{i['content']['a']['style']}}"  {{i['arguments']}}>{{i['content']['a']['value']}}</a>
+									{% endif %}
+								</div>
+
+							{% elif bulat == 'textarea' %}
+								<div id="point">
+									<textarea id="input" name="{{i['content']['name']}}"
+											  placeholder="{{i['content']['placeholder']}}"
+											  cols="i['content']['cols']"
+											  rows="i['content']['rows']"
+											  minlength="{{i['content']['min']}}"
+											  maxlength="{{i['content']['max']}}"
+											  style="{{i['content']['style']}}" {{ i['arguments'] }}>
+										{{i['content']['value']}}
+									</textarea>
+								</div>
+
+							{% elif bulat == 'multiline' %}
+								<div id="point" style="{{i['content']['style']}}">
+									<div id="subtitle" style="width: auto;flex: none;">{{i['content']['name']}}:</div>
+
+									{% if "input" in i['content'] %}
+										<input id="input"
+											   name="{{i['content']['input']['name']}}"
+											   type="{{i['content']['input']['type']}}"
+											   minlength="{{i['content']['input']['min']}}"
+											   maxlength="{{i['content']['input']['max']}}"
+											   style="{{i['content']['input']['style']}}" placeholder="{{i['content']['input']['placeholder']}}"
+											   value="{{i['content']['input']['value']}}"
+											   style="width:50%"
+											   {{i['arguments']}}/>
+									{% elif "text" in i['content'] %}
+										<div id="text" alt="{{i['content']['text']['placeholder']}}" style="{{i['content']['a']['style']}}width: auto;flex: none;" {{i['arguments']}}>{{i['content']['text']['value']}}</div>
+									{% endif %}
+
+									{% if 'button' in i['content'] %}
+										<button type="submit" id="button" {{i['arguments']}}>{{i['content']['button']['value']}}</button>
+									{% elif 'a' in i['content'] %}
+										<a href="{{i['content']['a']['link']}}" id="button" {{i['arguments']}}>{{i['content']['a']['value']}}</a>
+									{% endif %}
+
+								</div>
+							{% endif %}
+						{% endautoescape %}
+					{% endfor %}
+
+					<input name="hash" type="hidden" value="{{data['userData']['hash']}}"/>
+					<input name="uid" type="hidden" value="{{data['userData']['uid']}}"/>
+				</form>
+			</div>
+			{% if 'links' in data %}
+				<div id="block">
+					{% for i in data['links'] %}
+					<a href="{{i['link']}}" id="subtitle">{{i['name']}}</a>
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
 	</div>
 </body>
