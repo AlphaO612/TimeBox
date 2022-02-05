@@ -535,6 +535,8 @@ def file():
                                        f'{int(datetime.datetime.today().timestamp())}.json'
                         }
                         auth['accounts'][request.cookies.get('log')]['infoTimeBox']['history'].append(partOfHistory)
+                        if "historyTime" not in os.listdir(path=pwd if pwd else os.getcwd()):
+                            os.mkdir(pwd+"historyTime")
                         writeStorage(json.dumps(oldfile, ensure_ascii=False), f'historyTime/{partOfHistory["id_file"]}')
                         writeStorage(json.dumps(data, ensure_ascii=False), 'solo.json')
                         del data, oldfile, partOfHistory, file
