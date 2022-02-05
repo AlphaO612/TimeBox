@@ -100,13 +100,6 @@ class vkApi:
 
     def send(self, text: str, user_ids: list, **param):
         # try:
-        print(json.dumps({**{
-                                "access_token": self.token,
-                                "user_ids": user_ids,
-                                "message": text,
-                                "random_id": 0,
-                                "v": 5.131
-                            }, **param}, ensure_ascii=False))
         info = requests.get(f"https://api.vk.com/method/messages.send",
                             params={**{
                                 "access_token": self.token,
@@ -212,7 +205,7 @@ async def checkMsgs():
             trigger = None
             content['text'] = "Время ожидания истекло или вы неправильно ввели код!( \nПопытайтесь ещё раз провести процедуру заново!"
             for a in auth["timeToken"]:
-                if a['uid'] == str(i['message']['from_id']):
+                if a['uid'] == str(i['message']['from_id']) and str(a['token']) == command[1]:
                     trigger = a
                     account = auth['accounts'][auth["vkHash"][trigger["hash"]]]
                     if trigger in account["timeToken"]:
@@ -307,7 +300,6 @@ async def meetingFirst():
     for i in main.readTypeEvents("message_allow"):
         main.send("Привет!\nЯ - бот TimeBox, созданный для помощи в работе с сайтом!", [i['user_id']],
                   keyboard=json.dumps(buttons['помощь'], ensure_ascii=False))
-
 
 async def body():
     while main.update(True):
