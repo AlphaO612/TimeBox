@@ -129,11 +129,18 @@ def icons():
     return redirect(url_for('static', filename='favicon.ico'))
 
 
-@app.route("/uploads/<path:name>")
+@app.route("/upload/<path:name>")
 def download_file(name):
-    return send_from_directory(
-        app.config['UPLOAD_FOLDER'], name, as_attachment=True
-    )
+    auth = json.loads(readStorage('auth.json'))
+    if request.cookies.get('log') in auth['accounts']:
+        if auth['accounts'][request.cookies.get('log')]['statusTimeBox']:
+            if "solo.json" in name:
+                way = pwd
+            else:
+                way = app.config['UPLOAD_FOLDER']
+            print(way)
+            return send_from_directory(way, name, as_attachment=True)
+    return redirect(url_for("index"))
 
 
 @app.route('/', methods=['GET'])
@@ -193,7 +200,7 @@ def signin():
         timeData.update(auth['accounts'][request.cookies.get('log')])
         auth['accounts'][request.cookies.get('log')] = timeData
         del timeData
-        writeStorage(json.dumps(auth,ensure_ascii=False), "auth.json")
+        writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
         return redirect(url_for('check'))
 
     date = {
@@ -334,7 +341,7 @@ def verification():
             # Разбираем всё, что пришло и проверяем основной массив данных с профилем пользователя!
             for i in list(request.form):
                 # в основном мы провееряем здесь hash, uid, но в редких случаях мы можем добавить!
-                if i in data["userData"] and i not in ["login", "groupNum", "institute","lvl"]:
+                if i in data["userData"] and i not in ["login", "groupNum", "institute", "lvl"]:
                     if request.form[i] != data["userData"][i]:
                         print(
                             f"{i} - {request.form[i]} - {data['userData'][i]} = {request.form[i] != data['userData'][i]}")
@@ -350,9 +357,9 @@ def verification():
                     data['textMsg'] = f"Всё отправлено!"
                 elif (typeInput in data["userData"]
                       and typeInput not in ["hash", "uid", "surname", "tokens", "timeToken", "statusTimeBox",
-                                            "infoTimeBox"])\
+                                            "infoTimeBox"]) \
                         and ((typeInput == "password" and request.form["New1Password"] == request.form["New2Password"]
-                             or typeInput == "login") and request.form[typeInput]):
+                              or typeInput == "login") and request.form[typeInput]):
                     token = genTimeToken(typeInput,
                                          data["userData"],
                                          params={typeInput: (
@@ -387,12 +394,12 @@ def dashboard():
                     res = make_response(redirect(url_for('signin')))
                     res.set_cookie('log', '', max_age=0)
                     return res
-                
+
         timeData = auth['settings']["patterns"]['user'].copy()
         timeData.update(auth['accounts'][request.cookies.get('log')])
         auth['accounts'][request.cookies.get('log')] = timeData.copy()
         del timeData
-        writeStorage(json.dumps(auth,ensure_ascii=False), "auth.json")
+        writeStorage(json.dumps(auth, ensure_ascii=False), "auth.json")
 
         data = {
             "pattern": json.loads(readStorage("templates/dashboard.json")),
@@ -461,13 +468,19 @@ def applicationDonwload():
         else:
             data['id'] = "formRead"
             data['textMsg'] = "Привет!</div><div id = \"text\" style=\"display:contents;\"> " \
-                              f"<div>Скачать вы можете программу с " \
-                              f"<a href=\"upload/TimeBox.exe\" download>сервера</a> или " \
-                              "<a href=\"https://raw.githubusercontent.com/AlphaO612/TimeBox/main/downloadFiles/TimeBox.exe\" " \
-                              "download> GitHub-а</a>!</div>" \
-                              "<div> Мануал, как работать с программой, ты можешь скачать с " \
-                              f"<a href=\"upload/TimeBox.pdf\" download>сервера</a></div>" \
-                              f"<div> А вот загружать вам надо вот <a href=\"{url_for('file')}\">ЗДЕСЬ</a>!</div>"
+                              f"<p>Скачать вы можете программу с <a href=\"/upload/TimeBox.exe\"download>сервера</a>" \
+                              f" или <a href=\"https://raw.githubusercontent.com/" \
+                              f"AlphaO612/TimeBox/main/downloadFiles/TimeBox.exe\" download> GitHub-а</a>!</p>" \
+                              f"<p style=\"display: flex;flex-direction: row;align-items: center;\">" \
+                              f" Мануал, как работать с программой, ты можешь скачать с сервера - " \
+                              f"<a href=\"/upload/TimeBox.pdf\" id=\"button\" download>Мануал</a></p>" \
+                              f"<p style=\"display: flex;flex-direction: row;align-items: center;\">" \
+                              f"Чтобы облегчить создание расписания, можно скачать - " \
+                              f"<a href=\"/upload/solo.json\" id=\"button\" download>Скачать файл генерации</a></p>" \
+                              f"<p style=\"display: flex;flex-direction: row;align-items: center;\">" \
+                              f" А вот сюда нужно загружать ваш файл генерации - <a href=\"{url_for('file')}\"" \
+                              f" id=\"button\" style=\"color: #b41c1c;border-color: #c61212;\">Загрузка " \
+                              f"файла генерации</a>!</p>"
 
         # генерируем пункты меню, убирая те, которые скрыты!
         info = data['list'].copy()
@@ -514,13 +527,13 @@ def file():
                         return f'<p><h1 style="color:red;">Check your file</h1></p><p>{e} - {str(e)}</p><p><a href="{request.url}">Back</a></p>'
                     else:
                         partOfHistory = {
-                            "description":"",
-                            "date":int(datetime.datetime.today().timestamp()),
-                            "id_file":f'{auth["accounts"][request.cookies.get("log")]["infoTimeBox"]["token"]}_'\
-                               f'{int(datetime.datetime.today().timestamp())}.json'
+                            "description": "",
+                            "date": int(datetime.datetime.today().timestamp()),
+                            "id_file": f'{auth["accounts"][request.cookies.get("log")]["infoTimeBox"]["token"]}_' \
+                                       f'{int(datetime.datetime.today().timestamp())}.json'
                         }
                         auth['accounts'][request.cookies.get('log')]['infoTimeBox']['history'].append(partOfHistory)
-                        writeStorage(oldfile,f'historyTime/{partOfHistory["id_file"]}')
+                        writeStorage(oldfile, f'historyTime/{partOfHistory["id_file"]}')
                         writeStorage(json.dumps(data, ensure_ascii=False), 'solo.json')
                         del data, oldfile, partOfHistory, file
                         return f'<p><h1>fine! you loaded it!</h1></p<p><a href="{url_for("index")}">Back</a></p>'
