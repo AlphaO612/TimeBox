@@ -539,6 +539,7 @@ def file():
                             os.mkdir(pwd+"historyTime")
                         writeStorage(json.dumps(oldfile, ensure_ascii=False), f'historyTime/{partOfHistory["id_file"]}')
                         writeStorage(json.dumps(data, ensure_ascii=False), 'solo.json')
+                        writeStorage(json.dumps(auth, ensure_ascii=False), 'auth.json')
                         del data, oldfile, partOfHistory, file
                         return f'<p><h1>fine! you loaded it!</h1></p<p><a href="{url_for("index")}">Back</a></p>'
                 return redirect(url_for('index'))
