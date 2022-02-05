@@ -526,6 +526,8 @@ def file():
                     except Exception as e:
                         return f'<p><h1 style="color:red;">Check your file</h1></p><p>{e} - {str(e)}</p><p><a href="{request.url}">Back</a></p>'
                     else:
+                        if "token" not in auth["accounts"][request.cookies.get("log")]["infoTimeBox"]:
+                            auth["accounts"][request.cookies.get("log")]["infoTimeBox"]['token'] = str(uuid4())
                         partOfHistory = {
                             "description": "",
                             "date": int(datetime.datetime.today().timestamp()),
@@ -533,7 +535,7 @@ def file():
                                        f'{int(datetime.datetime.today().timestamp())}.json'
                         }
                         auth['accounts'][request.cookies.get('log')]['infoTimeBox']['history'].append(partOfHistory)
-                        writeStorage(oldfile, f'historyTime/{partOfHistory["id_file"]}')
+                        writeStorage(json.dumps(oldfile, ensure_ascii=False), f'historyTime/{partOfHistory["id_file"]}')
                         writeStorage(json.dumps(data, ensure_ascii=False), 'solo.json')
                         del data, oldfile, partOfHistory, file
                         return f'<p><h1>fine! you loaded it!</h1></p<p><a href="{url_for("index")}">Back</a></p>'

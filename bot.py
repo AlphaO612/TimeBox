@@ -251,6 +251,7 @@ async def checkMsgs():
                         main.send(f"Ваш запрос был одобрен!\nКомментарий модератора: {command[3]}", [block['uid']])
                         if block['type'].split("#")[1] == "requestmod":
                             auth['accounts'][auth['vkHash'][block['hash']]]['statusTimeBox'] = True
+                            auth['accounts'][auth['vkHash'][block['hash']]]['infoTimeBox']['token'] = str(uuid4())
 
                             if block in auth['timeToken']:
                                 auth['timeToken'].remove(block)
