@@ -1,9 +1,851 @@
+<style>
+	@import url('https://fonts.googleapis.com/css?family=Ropa%20Sans');
+@import url('https://fonts.googleapis.com/css?family=PT%20Sans');
+/* Фон */
+body {
+    /*background: linear-gradient(118.71deg, #28ABD5 24.35%, #AEE8E8 85.06%), #C4C4C4;*/
+    background: linear-gradient(118.71deg, #284ED5 24.35%, #8039DA 85.06%) fixed;
 
+    overflow-x: hidden;
+}
+
+A {
+    text-decoration: none;
+}
+/*.lesson:hover {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.40) 50%, rgba(255, 255, 255, 0) 100%);
+} */
+
+.overlay {
+    width: 100%;
+    height: 100%;
+    background: rgba(51, 51, 51, 0.78);
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: none;
+}
+.block-popup{
+    position: absolute;
+    background: #fff;
+    width: 37%;
+    height: 135px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 12px 20px -10px;
+    text-align: center;
+    display: none;
+}
+
+.block-popup span{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+}
+/* lineLight */
+.line{
+    margin: auto;
+    position: relative;
+    top: 2%;
+    width: 100%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0) 100%);
+    height: 6%;
+}
+
+/* ДатаВремя */
+.timeBox{
+    margin: auto;
+    position: relative;
+    width: 54%;
+    height: 14%;
+    top: 4.2%;
+    /*left: 23%;
+    right: 23%;*/
+    transition: .9s opacity ease-in-out;
+}
+
+/* 21.09.2020 */
+.datetext{
+    margin: auto;
+    position: relative;
+    top: 2%;
+    /*left: 31%;
+    right: 31%;*/
+
+    font-family: Ropa Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 400%;
+    text-align: center;
+    letter-spacing: 0.095em;
+
+    color: rgba(255, 255, 255, 0.55);
+}
+
+/* понедельник */
+.nametext{
+    margin: auto;
+    position: relative;
+    top: 2%;
+    /*left: 35%;
+    right: 35%;*/
+
+    font-family: PT Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 180%;
+    text-align: center;
+    letter-spacing: 0.13em;
+
+    color: rgba(255, 255, 255, 0.55);
+}
+
+/* Расписание */
+.timetableBox{
+    position: relative;
+    height: 59.72%;
+    top: 8%;
+    display: flex;
+    margin: auto;
+    text-align: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: auto;
+    transition: 1.2s opacity ease-in-out;
+}
+
+/* ТекстУрока */
+.lesson{
+    margin: 3 auto;
+    position: relative;
+    width: 820px;
+    height: 82px;
+    left: 0px;
+    top: 6px;
+    display: flex;
+    /* margin-right: -0.25em; */
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0px 4px 9px rgb(0 0 0 / 25%);
+    border-radius: 11px;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+/*.lesssssson{
+    margin: auto;
+
+    font-family: PT Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 280%;
+
+    letter-spacing: 0.1em;
+
+    color: #D3F5FF;
+}*/
+#time{
+    position: relative;
+    width: 47px;
+    height: 42px;
+    left: 18px;
+    top: 20px;
+
+    font-family: PT Sans;
+    font-style: normal;
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 68.2%;
+
+    display: flex;
+    align-items: center;
+    text-align: center;
+    letter-spacing: 0.1em;
+
+    color: #000000;
+}
+
+#rightLine{
+    position: relative;
+    width: 0px;
+    height: 74px;
+    left: 18px;
+
+    border: 1px solid rgba(0, 0, 0, 0.07);
+}
+#leftLine{
+    position: relative;
+    width: 0px;
+    height: 74px;
+    left: 0px;
+
+    border: 1px solid rgba(0, 0, 0, 0.07);
+}
+#cen{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    /* padding: 13px; */
+    position: relative;
+    width: 738px;
+    height: 82px;
+    left: 32px;
+    /* top: 0px;*/
+}
+#TextOne{
+    position: static;
+    width: 623px;
+    height: 16px;
+    left: 13px;
+    top: 18px;
+    font-family: PT Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 24px;
+    line-height: 68.2%;
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.045em;
+    color: #000000;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+    margin: 10px 0px;
+}
+#TextTwo{
+    position: static;
+    width: 309px;
+    height: 10px;
+    left: 13px;
+    top: 54px;
+
+    font-family: PT Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 68.2%;
+    /* identical to box height, or 10px */
+
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.045em;
+
+    color: rgba(0, 0, 0, 0.58);
+
+
+    /* Inside Auto Layout */
+
+    flex: none;
+    order: 1;
+    flex-grow: 0;
+    margin: 10px 0px;
+}
+#test{
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+}
+#text{
+    font-family: PT Sans;
+    font-style: normal;
+    font-weight: 800;
+    font-size: 15px;
+
+    display: flex;
+    align-items: center;
+    text-align: center;
+
+    color: #000000;
+}
+
+.short{
+    position:relative;
+    left:10px;
+    width:50px;
+    height:60px;
+    word-break:break-word;
+}
+
+.tut{
+    color: rgba(211, 245, 255, 0.7);
+}
+
+.tut:hover {
+    color: rgba(211, 245, 255, 0.9);
+}
+
+#type{
+    font-family: PT Sans;
+    font-style: normal;
+    font-size: 150%;
+    text-align: center;
+    margin: auto;
+    width: 50%;
+    position: absolute;
+    left: 50%;
+    margin-left: -25%;
+    top: 2%;
+    color: rgba(211, 245, 255, 1);
+}
+.profile {
+    margin: 3 auto;
+    position: relative;
+    top:4.2%;
+    width: 450px;
+    height: 82px;
+    display: flex;
+    /* margin-right: -0.25em; */
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0px 4px 9px rgb(0 0 0 / 25%);
+    border-radius: 11px;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: center;
+}
+.profile #picture{
+    margin-left: 30px;
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px 3px rgba(130, 69, 230, 0.4);
+}
+.profile #nameProfile{
+    margin-left: 20px;
+    position: static;
+    width: 623px;
+    height: 16px;
+    left: 13px;
+    top: 18px;
+    font-family: PT Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 24px;
+    line-height: 68.2%;
+    align-items: center;
+    letter-spacing: -0.045em;
+    color: #000000;
+}
+
+.block{
+    height: 66%;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0px 4px 9px rgb(0 0 0 / 25%);
+    border-radius: 11px;
+    display: flex;
+    margin: auto;
+    margin-top:4%;
+    margin-left: 10%;
+    margin-right:10%;
+    text-align: center;
+    flex-wrap: nowrap;
+    justify-content: center;
+    overflow-y: auto;
+    transition: 1.2s opacity ease-in-out;
+    padding:2%;
+}
+
+.menu{
+    width: 20%;
+    height: auto;
+    display: flex;
+
+    margin-right: 2%;
+
+    text-align: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: auto;
+
+    flex-wrap: nowrap;
+}
+
+.menu #title{
+    font-family: PT Sans;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 600%;
+    margin:0;
+    margin-top:3%;
+
+    letter-spacing: -0.075em;
+}
+
+.menu #smile{
+    max-width:70%;
+    height:auto;
+    border-radius: 50%;
+    margin-top: 29px;
+    margin-left: auto;
+    margin-right: auto;
+
+    box-shadow: 0px 0px 29px 10px rgba(130, 69, 230, 0.83);
+}
+
+.main{
+    width:80%;
+    height: auto;
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: center;
+    color:#1D1D1D;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.main #title{
+    font-family: PT Sans;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 200%;
+    letter-spacing: -0.075em;
+    color:#000000;
+    margin:0;
+
+    margin-bottom:2%;
+}
+.main #subtitle{
+    font-family: PT Sans;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 160%;
+    letter-spacing: -0.075em;
+
+    margin:0;
+}
+.main #text{
+    font-family: PT Sans;
+    font-style: normal;
+    font-size: 134%;
+    font-weight: normal;
+    margin-bottom:2%;
+}
+.main #block{
+    width:55%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.main #point{
+     width: fit-content;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
+}
+.main #point > div,input,button{
+    flex: 1 1 auto;
+    text-align: center;
+
+    margin: 2.5%;  /* and that, will result in a 10px gap */
+}
+
+.main A[id=subtitle]{
+    color:#1D1D1D;
+}
+
+.main #input{
+    font-family: PT Sans;
+    font-style: normal;
+    font-size: 120%;
+    font-weight: normal;
+
+    border: 0 solid #45276A;
+    border-bottom-width: thick;
+}
+
+.main #button{
+    height:fit-content;
+    width:fit-content;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content:center;
+
+    padding: 0.8vh;
+
+    background: rgba(255, 255, 255, 0.68);
+
+    border: 0.3vw solid #45276A;
+
+    border-radius: 11px;
+
+    font-family: PT Sans;
+    font-style: normal;
+    font-size: 100%;
+    font-weight: normal;
+    color: #280C4A;
+}
+
+.main #button:hover{
+    transform: scale(1.01,1.01);
+    box-shadow: 0px 3px 0px rgba(0, 0, 0, 0.25);
+    transition: 0.1s ease-in-out;
+}
+
+.main #button:active {
+    background: rgba(210, 200, 219, 0.68);
+    transition: 0.1s ease-in-out;
+}
+
+.icons{
+    max-width: 100%;
+    height: auto;
+    position: absolute;
+    top:3%;
+    opacity: 0.5;
+
+    transition: 0.08s opacity ease-in-out;
+}
+.icons:hover {
+    opacity: 1;
+}
+
+/* home */
+#svg{
+    position: absolute;
+    left: 3%;
+}
+
+#svg2{
+    position: absolute;
+    right: 3%;
+}
+
+.commits{
+    width:90%;
+    height:400px;
+
+    padding:2%;
+
+    font-family: PT Sans;
+    font-style: normal;
+    font-size: 134%;
+    font-weight: normal;
+
+    display:flex;
+    flex-direction: column;
+    margin-bottom:2%;
+
+    overflow-y: auto;
+}
+
+.card{
+    height:fit-content;
+    display: flex;
+    flex-direction: column;
+    padding: 4%;
+    margin:1%;
+
+    background: rgba(255, 255, 255, 0.68);
+
+    box-shadow: 0px 4px 9px rgba(0, 0, 0, 0.25);
+    border-radius: 11px;
+    align-items: flex-start;
+}
+
+.card #name{
+    font-family: PT Sans;
+    font-style: normal;
+    font-size: 134%;
+    font-weight: bold;
+
+    color: #000000;
+    margin:0;
+}
+.card A{
+    color: #000000;
+    opacity:0.78;
+}
+
+.card A:hover{
+    opacity:1;
+
+    transition: 0.08s opacity ease-in-out;
+}
+
+.card #info{
+    font-family: PT Sans;
+    font-style: normal;
+    font-size: 60%;
+    font-weight: normal;
+    color: #8c8c8c;
+    margin:0;
+}
+
+.partHalf{
+    width:100%;
+    height:100%;
+
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.partHalf #half{
+    width:50%;
+    height:100%;
+
+    display:flex;
+    flex-direction: column;
+    justify-content:center;
+    align-content: center;
+    align-items: center;
+}
+
+.partHalf #smile{
+    max-width:65%;
+    height:auto;
+    border-radius: 50%;
+    margin-bottom: 5%;
+    margin-left: auto;
+    margin-right: auto;
+
+    box-shadow: 0px 0px 29px 10px rgba(130, 69, 230, 0.83);
+}
+
+.title{
+    font-family: Ropa Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 400%;
+    text-align: center;
+    letter-spacing: 0.095em;
+    margin:0 0 1% 0;
+    color: #fff;
+}
+
+.short{
+    position:relative;
+    left:10px;
+    width:50px;
+    height:60px;
+    word-break:break-word;
+}
+
+.tut{
+    color: rgba(211, 245, 255, 0.7);
+}
+
+.tut:hover {
+    color: rgba(211, 245, 255, 0.9);
+}
+
+#type{
+    font-family: PT Sans;
+    font-style: normal;
+    font-size: 150%;
+    text-align: center;
+    margin: auto;
+    width: 50%;
+    position: absolute;
+    left: 50%;
+    margin-left: -25%;
+    top: 2%;
+    color: rgba(211, 245, 255, 1);
+}
+
+.icons{
+    max-width: 100%;
+    height: auto;
+    opacity: 0.5;
+
+    transition: 0.08s opacity ease-in-out;
+}
+.icons:hover {
+    opacity: 1;
+}
+
+/* home */
+#svg{
+    position: absolute;
+    left: 3%;
+    top:3%;
+}
+
+#svg2{
+    position: absolute;
+    right: 3%;
+    top:3%;
+}
+#svg3{
+    position: absolute;
+    right: 3%;
+    bottom:3%;
+}
+
+.month{
+    display:flex;
+    flex-direction: column;
+}
+.month #week{
+    width:100%;
+    margin-bottom: 5px;
+}
+.month #day{
+    position:relative;
+    width:3%;
+    height:0;
+
+
+    margin-left: 2.5px;
+    margin-right: 2.5px;
+
+    padding-bottom: 3%;
+
+    display:inline-block;
+
+    background: rgba(255,255,255,0.98);
+    border: 4px;
+
+    border-radius: 15%;
+
+    font-family: Ropa Sans;
+    color: #252525;
+    font-style: normal;
+    font-size: 255%;
+    text-align: center;
+}
+.month A{
+    text-decoration:none;
+    color: #252525;
+}
+
+@media only screen and (hover: none) and (pointer: coarse)and (orientation: landscape){
+
+
+    .block{
+        position:relative;
+        top: -3vw;
+    }
+
+    #mobile{
+        transform:scale(0.5);
+    }
+    #smile{
+        width: 110px;
+        height: 110px;
+    }
+
+    #type {
+        font-size: 100%;
+    }
+
+    .menu #title{
+        font-size: 320%;
+    }
+
+    .main #title{
+        font-size: 150%;
+
+    }
+    .main #subtitle{
+        font-size: 70%;
+    }
+    .main #text{
+        font-size: 80%;
+    }
+
+    .main #block{
+        width:65%;
+    }
+    .main #button{
+        font-size: 80%;
+    }
+
+    .commits{
+        height:190px;
+    }
+
+    .card #name{
+        font-size: 70%;
+        margin:0;
+    }
+
+    .card #info{
+        font-size: 40%;
+    }
+    .main #input{
+        font-size: 80%;
+        font-weight: normal;
+
+        border: 0 solid #45276A;
+        border-bottom-width: 0.3em;
+    }
+
+    .month{}
+
+    .month #day{
+        position:relative;
+        width:3%;
+        height:0;
+        padding-bottom: 3%;
+        border: 2px;
+
+        border-radius: 15%;
+
+        font-size: 150%;
+    }
+
+}
+
+@media only screen and (hover: none) and (pointer: coarse)and (orientation: portrait){
+
+    #mobile{
+        transform:scale(1.3);
+    }
+
+    .main{
+
+        margin-top: 20%;
+    }
+
+    .menu #title{
+        font-size: 200%;
+    }
+
+    .timeBox{
+        top: 7%;
+        height:18%;
+    }
+
+    .menu #title{
+        font-size: 250%;
+    }
+    .block{
+        position:relative;
+        top:10%;
+    }
+    .month{}
+
+    .month #day{
+        position:relative;
+        width:10%;
+        height:0;
+        padding-bottom: 10%;
+        border: 2px;
+
+        border-radius: 15%;
+
+        font-size: 490%;
+    }
+
+    .title{
+        font-size: 1000%;
+    }
+}
+</style>
 <head lang="ru">
 	<title>TimeBox</title>
 	<meta name="viewport" content="width=850, user-scalable=yes">
 	<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
-	<link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
 
     <link
       rel="stylesheet"
