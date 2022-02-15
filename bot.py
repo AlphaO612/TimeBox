@@ -304,7 +304,7 @@ async def meetingFirst():
 
 async def body():
     status = main.update(True)
-    while main.update(True):
+    while status:
         try:
             print(main.info)
             task1 = asyncio.create_task(
