@@ -323,6 +323,7 @@ async def body():
                 main.send(
                     f"Ошибка в боте\n-------------------------------\n{e}\n**************\n{traceback.format_exc()}",
                     [author_id])
+                sleep(20)
             except:
                 pass
 
