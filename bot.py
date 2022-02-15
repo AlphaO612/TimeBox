@@ -303,6 +303,7 @@ async def meetingFirst():
                   keyboard=json.dumps(buttons['помощь'], ensure_ascii=False))
 
 async def body():
+    status = main.update(True)
     while main.update(True):
         try:
             print(main.info)
@@ -315,6 +316,7 @@ async def body():
             await task3
             await task1
             await task2
+            status = main.update(True)
         except Exception as e:
             try:
                 main.send(
@@ -322,6 +324,7 @@ async def body():
                     [author_id])
             except:
                 pass
+
         sleep(1)
 
 
