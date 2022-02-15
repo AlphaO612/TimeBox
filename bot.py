@@ -303,6 +303,7 @@ async def meetingFirst():
                   keyboard=json.dumps(buttons['помощь'], ensure_ascii=False))
 
 async def body():
+    global main
     status = main.update(True)
     while status:
         try:
@@ -319,6 +320,7 @@ async def body():
             status = main.update(True)
         except Exception as e:
             try:
+                main = vkApi(access_token=auth['access_token'], group_id=auth['group_id'], wait=1)
                 main.upgrade()
                 main.send(
                     f"Ошибка в боте\n-------------------------------\n{e}\n**************\n{traceback.format_exc()}",
