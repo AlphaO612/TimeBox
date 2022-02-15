@@ -319,6 +319,7 @@ async def body():
             status = main.update(True)
         except Exception as e:
             try:
+                main.upgrade()
                 main.send(
                     f"Ошибка в боте\n-------------------------------\n{e}\n**************\n{traceback.format_exc()}",
                     [author_id])
